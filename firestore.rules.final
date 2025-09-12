@@ -1,0 +1,127 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return request.auth != null && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+    
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Users collection - users can read/write their own data, admins can read all and update status/verification
+    match /users/{userId} {
+      // Users can read/write their own data
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null && request.auth.uid == userId;
+      
+      // Admins can read all user data
+      allow read: if isAdmin();
+      
+      // Allow authenticated users to read user data for business purposes (like getting buyer info)
+      allow read: if isAuthenticated();
+      
+      // Admins can update user data with specific fields
+      allow update: if isAdmin() && 
+        (request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['status', 'verificationStatus', 'verificationReviewedAt', 'verificationReviewedBy', 'verificationNotes', 'isVerified', 'statusUpdatedAt', 'statusUpdatedBy']));
+      
+      // Specific admin user can update (backup check)
+      allow update: if isAuthenticated() && request.auth.uid == 'cmqkjE1ArHUvZKdkqLnQXyAIj9g2';
+    }
+    
+    // Offers collection - public read, authenticated users can create/update their own offers
+    match /offers/{offerId} {
+      // Public read access
+      allow read: if true;
+      // Authenticated users can create offers
+      allow create: if request.auth != null;
+      // Users can update/delete their own offers
+      allow update, delete: if request.auth != null && 
+        resource.data.supplierId == request.auth.uid;
+      // Admins have full access
+      allow read, write: if isAdmin();
+      // Allow system updates for offer restoration
+      allow update: if request.auth != null && 
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['quantity', 'status', 'deleted', 'deletedAt', 'updatedAt']);
+    }
+    
+    // Purchases collection - users can read their own purchases
+    match /purchases/{purchaseId} {
+      // Users can read their own purchases (buyer or seller)
+      allow read: if request.auth != null && 
+        (resource.data.buyerId == request.auth.uid || 
+         resource.data.sellerId == request.auth.uid);
+      // Users can create purchases
+      allow create: if request.auth != null;
+      // Users can update their own purchases
+      allow update: if request.auth != null && 
+        (resource.data.buyerId == request.auth.uid || 
+         resource.data.sellerId == request.auth.uid);
+      // Admins have full access
+      allow read, write: if isAdmin();
+      // Allow list operations for querying purchases
+      allow list: if request.auth != null;
+    }
+    
+    // Transactions collection - users can read/write their own transactions
+    match /transactions/{transactionId} {
+      // Users can read/write their own transactions
+      allow read, write: if request.auth != null && 
+        (resource.data.buyerId == request.auth.uid || 
+         resource.data.sellerId == request.auth.uid);
+      // Users can create transactions
+      allow create: if request.auth != null;
+      // Admins have full access
+      allow read, write: if isAdmin();
+    }
+    
+    // Messages collection - users can read/write messages they're involved in
+    match /messages/{messageId} {
+      // Users can read/write messages they're involved in
+      allow read, write: if request.auth != null && 
+        (resource.data.senderId == request.auth.uid || 
+         resource.data.receiverId == request.auth.uid);
+      // Users can create messages
+      allow create: if request.auth != null;
+      // Admins have full access
+      allow read, write: if isAdmin();
+    }
+    
+    // Conversations collection - users can read/write conversations they're involved in
+    match /conversations/{conversationId} {
+      // Users can read/write conversations they're involved in
+      allow read, write: if request.auth != null && 
+        resource.data.participants[request.auth.uid] == true;
+      // Users can create conversations
+      allow create: if request.auth != null;
+      // Admins have full access
+      allow read, write: if isAdmin();
+    }
+    
+    // Notifications collection - users can read/write their own notifications
+    match /notifications/{notificationId} {
+      // Users can read/write their own notifications
+      allow read, write: if request.auth != null && 
+        resource.data.userId == request.auth.uid;
+      // Users can create notifications for themselves
+      allow create: if request.auth != null && 
+        request.resource.data.userId == request.auth.uid;
+      // Admins have full access
+      allow read, write: if isAdmin();
+      // Allow list operations for notification history
+      allow list: if request.auth != null;
+    }
+    
+    // Admin collection - only admin users can access
+    match /admin/{document=**} {
+      allow read, write: if isAdmin();
+    }
+  }
+}

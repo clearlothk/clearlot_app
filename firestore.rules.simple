@@ -1,0 +1,72 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return request.auth != null && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+    
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Users collection - simplified rules for testing
+    match /users/{userId} {
+      // Users can read/write their own data
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null && request.auth.uid == userId;
+      
+      // Admins can read all user data
+      allow read: if isAdmin();
+      
+      // Admins can update user data (simplified - no field restrictions for testing)
+      allow update: if isAdmin();
+      
+      // Specific admin user can update (backup check)
+      allow update: if isAuthenticated() && request.auth.uid == 'cmqkjE1ArHUvZKdkqLnQXyAIj9g2';
+    }
+    
+    // Offers collection
+    match /offers/{offerId} {
+      allow read: if true; // Public read access
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && 
+        resource.data.supplierId == request.auth.uid;
+      allow read, write: if isAdmin(); // Admins have full access
+      // Allow system updates for offer restoration
+      allow update: if request.auth != null && 
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['quantity', 'status', 'deleted', 'deletedAt', 'updatedAt']);
+    }
+    
+    // Purchases collection
+    match /purchases/{purchaseId} {
+      allow read: if request.auth != null && 
+        (resource.data.buyerId == request.auth.uid || 
+         resource.data.sellerId == request.auth.uid);
+      allow create: if request.auth != null;
+      allow update: if request.auth != null && 
+        (resource.data.buyerId == request.auth.uid || 
+         resource.data.sellerId == request.auth.uid);
+      allow read, write: if isAdmin(); // Admins have full access
+    }
+    
+    // Notifications collection
+    match /notifications/{notificationId} {
+      allow read, write: if request.auth != null && 
+        resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && 
+        request.resource.data.userId == request.auth.uid;
+      allow read, write: if isAdmin(); // Admins have full access
+    }
+    
+    // Admin collection - only admin users can access
+    match /admin/{document=**} {
+      allow read, write: if isAdmin();
+    }
+  }
+}

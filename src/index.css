@@ -1,0 +1,147 @@
+/* Emoji font support */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Ensure emojis display properly */
+.emoji-picker {
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Android Emoji', 'EmojiSymbols', sans-serif;
+}
+
+.emoji-button {
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Android Emoji', 'EmojiSymbols', sans-serif;
+  font-size: 20px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Order Progress Animations */
+@keyframes progressGlow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(34, 197, 94, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.6), 0 0 30px rgba(34, 197, 94, 0.4);
+  }
+}
+
+@keyframes stepPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes iconJump {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  15% {
+    transform: translateY(-20px) scale(1.2);
+  }
+  30% {
+    transform: translateY(-35px) scale(1.4);
+  }
+  45% {
+    transform: translateY(-20px) scale(1.2);
+  }
+  60% {
+    transform: translateY(-10px) scale(1.1);
+  }
+  75% {
+    transform: translateY(-5px) scale(1.05);
+  }
+}
+
+@keyframes iconJumpSmooth {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  25% {
+    transform: translateY(-30px) scale(1.3);
+  }
+  50% {
+    transform: translateY(-40px) scale(1.5);
+  }
+  75% {
+    transform: translateY(-15px) scale(1.15);
+  }
+}
+
+/* Custom animation classes */
+.progress-glow {
+  animation: progressGlow 2s ease-in-out infinite;
+}
+
+.step-pulse {
+  animation: stepPulse 1.5s ease-in-out infinite;
+}
+
+.shimmer {
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+.bounce-in {
+  animation: bounceIn 0.6s ease-out;
+}
+
+.slide-in-right {
+  animation: slideInRight 0.5s ease-out;
+}
+
+.icon-jump {
+  animation: iconJumpSmooth 1.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+}
+
+/* Enhanced hover effects */
+.step-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.step-hover:hover {
+  transform: translateY(-2px) scale(1.05);
+  filter: brightness(1.1);
+}

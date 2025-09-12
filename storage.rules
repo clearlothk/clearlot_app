@@ -1,0 +1,52 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Allow authenticated users to upload and manage their own offer images
+    match /offers/{userId}/{fileName} {
+      allow read: if true; // Public read access for offer images
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Allow users to upload shipping photos
+    match /shipping-photos/{userId}/{fileName} {
+      allow read: if true; // Public read access for shipping photos
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Allow users to manage their own profile images
+    match /users/{userId}/profile/{fileName} {
+      allow read: if true; // Public read access for profile images
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Allow users to manage their own company logos
+    match /users/{userId}/company-logo/{fileName} {
+      allow read: if true; // Public read access for company logos
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Allow users to manage their own general files
+    match /users/{userId}/{fileType}/{fileName} {
+      allow read: if true; // Public read access
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Allow users to upload verification documents in organized structure
+    match /verify/{userId}/{fileType}/{fileName} {
+      allow read: if true; // Public read access for verification documents
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Allow admin to upload Clearlot payment receipts
+    match /clearlot-payments/{transactionId}/{fileName} {
+      allow read: if true; // Public read access for payment receipts
+      allow write: if request.auth != null; // Only authenticated users (admin) can upload
+    }
+    
+    // Default rule - deny all other access
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+} 
