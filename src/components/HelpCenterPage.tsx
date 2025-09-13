@@ -193,7 +193,7 @@ export default function HelpCenterPage() {
                 
                 {submitStatus === 'error' && (
                   <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
-                    發送失敗，請稍後再試或直接發送電郵至 support@clearlot.com
+                    發送失敗，請稍後再試或直接發送電郵至 support@clearlot.app
                   </div>
                 )}
                 

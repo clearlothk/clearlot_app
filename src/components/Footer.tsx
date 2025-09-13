@@ -64,7 +64,7 @@ export default function Footer() {
             <div className="space-y-4">
               <div className="flex items-center text-gray-300">
                 <Mail className="h-5 w-5 mr-3 text-blue-400" />
-                <span>support@clearlot.com</span>
+                <span>support@clearlot.app</span>
               </div>
               <div className="flex items-center text-gray-300">
                 <Phone className="h-5 w-5 mr-3 text-blue-400" />

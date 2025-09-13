@@ -129,7 +129,7 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
                 如果您對這些條款或隱私政策有任何疑問，請通過以下方式聯繫我們：
               </p>
               <ul className="list-disc pl-6 space-y-2 text-gray-700 mt-2">
-                <li>電子郵件：support@clearlot.com</li>
+                <li>電子郵件：support@clearlot.app</li>
                 <li>電話：+852 1234 5678</li>
                 <li>地址：香港中環金融街88號</li>
               </ul>
