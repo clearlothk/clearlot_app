@@ -7,13 +7,12 @@ import { getStorage } from "firebase/storage";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyC2wNgiEcYAHbdz_6KAe-t52yvAlM6DLh4", // Updated API key
-  authDomain: "clearlot-65916.firebaseapp.com",
-  projectId: "clearlot-65916",
-  storageBucket: "clearlot-65916.firebasestorage.app",
-  messagingSenderId: "599899772543",
-  appId: "1:599899772543:web:d2cbe4137180be0866914a",
-  measurementId: "G-E2ZJZM4L53"
+  apiKey: "AIzaSyBURGK6ORVJoNaHewFSprImB1uw-N8hcWw",
+  authDomain: "teelt-8fda1.firebaseapp.com",
+  projectId: "teelt-8fda1",
+  storageBucket: "teelt-8fda1.firebasestorage.app",
+  messagingSenderId: "73676439998",
+  appId: "1:73676439998:web:5806cb6611d66abd2c39ef"
 };
 
 // Initialize Firebase
