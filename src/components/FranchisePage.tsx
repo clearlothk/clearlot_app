@@ -336,7 +336,7 @@ export default function FranchisePage() {
                   </div>
                   <div>
                     <h4 className="font-semibold">加盟熱線</h4>
-                    <p className="text-blue-100">+852 1234-5678</p>
+                    <p className="text-blue-100">+852 98765432</p>
                   </div>
                 </div>
 

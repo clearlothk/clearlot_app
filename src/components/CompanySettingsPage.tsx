@@ -983,7 +983,7 @@ export default function CompanySettingsPage() {
                             type="tel"
                             value={companyFormData.phone}
                             onChange={(e) => setCompanyFormData(prev => ({ ...prev, phone: filterPhoneInput(e.target.value) }))}
-                            placeholder="+852 1234 5678"
+                            placeholder="+852 98765432"
                             className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white transition-all duration-200"
                           />
                         ) : (
