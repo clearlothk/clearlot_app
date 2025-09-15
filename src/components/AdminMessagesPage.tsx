@@ -10,6 +10,7 @@ import {
   Shield,
   Settings,
   LogOut,
+  Menu,
   X,
   BarChart3,
   Package,
@@ -45,10 +46,10 @@ export default function AdminMessagesPage() {
   const [filePreview, setFilePreview] = useState<string | null>(null);
   const [adminUserId, setAdminUserId] = useState<string | null>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Check admin authentication
   useEffect(() => {
@@ -345,15 +346,15 @@ export default function AdminMessagesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
       {/* Mobile Overlay */}
       {sidebarOpen && (
-        <div
+        <div 
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
-
+      
       {/* Sidebar */}
       <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
@@ -369,13 +370,6 @@ export default function AdminMessagesPage() {
               <p className="text-xs text-blue-100">ClearLot</p>
             </div>
           </div>
-          {/* Mobile Close Button */}
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="lg:hidden text-white hover:text-blue-100 p-1 rounded-lg transition-colors duration-200"
-          >
-            <X className="h-6 w-6" />
-          </button>
         </div>
 
         {/* Navigation */}
@@ -485,6 +479,7 @@ export default function AdminMessagesPage() {
                 localStorage.removeItem('adminAuthenticated');
                 localStorage.removeItem('adminUser');
                 navigate('/');
+                setSidebarOpen(false);
               }}
               className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 group border border-gray-200"
             >
@@ -495,19 +490,33 @@ export default function AdminMessagesPage() {
         </div>
       </div>
 
+      {/* Mobile sidebar overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Main Content */}
-      <div className="flex-1 lg:ml-0">
+      <div className="flex-1 w-full lg:ml-0 overflow-x-hidden">
       {/* Header */}
         <div className="bg-white shadow-sm border-b border-gray-200">
-          <div className="flex items-center justify-between h-16 px-6">
-            <div className="flex items-center space-x-4">
+          <div className="flex items-center justify-between h-14 md:h-16 px-4 md:px-6">
+            <div className="flex items-center space-x-2 md:space-x-4">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
                 className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg lg:hidden"
               >
-                {sidebarOpen ? <X className="h-5 w-5" /> : <MessageCircle className="h-5 w-5" />}
+                {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </button>
-              <h2 className="text-xl font-semibold text-gray-900">Messages Management</h2>
+              <button
+                onClick={() => navigate('/hk/admin/dashboard')}
+                className="hidden lg:block p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"
+              >
+                <MessageCircle className="h-5 w-5" />
+              </button>
+              <h2 className="text-lg md:text-xl font-semibold text-gray-900">Messages Management</h2>
             </div>
             <div className="flex items-center space-x-4">
               <span className="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
@@ -518,14 +527,14 @@ export default function AdminMessagesPage() {
         </div>
 
         {/* Content */}
-        <div className="p-6">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="p-3 md:p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 md:gap-6">
             {/* Left Sidebar - Conversations */}
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sticky top-6">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 md:p-4 sticky top-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                    <MessageCircle className="h-5 w-5 mr-2 text-blue-600" />
+                  <h3 className="text-base md:text-lg font-semibold text-gray-900 flex items-center">
+                    <MessageCircle className="h-4 w-4 md:h-5 md:w-5 mr-2 text-blue-600" />
                     User Conversations
                   </h3>
                   <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
@@ -541,7 +550,7 @@ export default function AdminMessagesPage() {
                     placeholder="Search conversations..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs md:text-sm"
               />
           </div>
 
@@ -614,19 +623,19 @@ export default function AdminMessagesPage() {
 
             {/* Main Content - Chat */}
             <div className="lg:col-span-3">
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-[600px] flex flex-col">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-[500px] md:h-[600px] flex flex-col">
                 {selectedConversation ? (
                   <>
                     {/* Chat Header */}
-                    <div className="px-6 py-4 border-b border-gray-200">
+                    <div className="px-4 md:px-6 py-3 md:py-4 border-b border-gray-200">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
+                        <div className="flex items-center space-x-2 md:space-x-3">
                           <div className="relative">
                             {selectedConversation.participant.avatar ? (
                               <img
                                 src={selectedConversation.participant.avatar}
                                 alt={selectedConversation.participant.name}
-                                className="h-10 w-10 rounded-full object-cover"
+                                className="h-8 w-8 md:h-10 md:w-10 rounded-full object-cover"
                                 onError={(e) => {
                                   const target = e.target as HTMLImageElement;
                                   target.style.display = 'none';

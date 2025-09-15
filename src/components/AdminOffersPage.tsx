@@ -15,6 +15,7 @@ import {
   MessageCircle,
   Settings,
   LogOut,
+  Menu,
   X,
   MapPin,
   Clock,
@@ -712,15 +713,15 @@ export default function AdminOffersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
       {/* Mobile Overlay */}
       {sidebarOpen && (
-        <div
+        <div 
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
-
+      
       {/* Sidebar */}
       <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
@@ -736,13 +737,6 @@ export default function AdminOffersPage() {
               <p className="text-xs text-blue-100">ClearLot</p>
             </div>
           </div>
-          {/* Mobile Close Button */}
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="lg:hidden text-white hover:text-blue-100 p-1 rounded-lg transition-colors duration-200"
-          >
-            <X className="h-6 w-6" />
-          </button>
         </div>
 
         {/* Navigation */}
@@ -852,6 +846,7 @@ export default function AdminOffersPage() {
                 localStorage.removeItem('adminAuthenticated');
                 localStorage.removeItem('adminUser');
                 navigate('/');
+                setSidebarOpen(false);
               }}
               className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 group border border-gray-200"
             >
@@ -862,19 +857,33 @@ export default function AdminOffersPage() {
         </div>
       </div>
 
+      {/* Mobile sidebar overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Main Content */}
-      <div className="flex-1 lg:ml-0">
+      <div className="flex-1 w-full lg:ml-0 overflow-x-hidden">
         {/* Header */}
         <div className="bg-white shadow-sm border-b border-gray-200">
-          <div className="flex items-center justify-between h-16 px-6">
-            <div className="flex items-center space-x-4">
+          <div className="flex items-center justify-between h-14 md:h-16 px-4 md:px-6">
+            <div className="flex items-center space-x-2 md:space-x-4">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
                 className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg lg:hidden"
               >
-                {sidebarOpen ? <X className="h-5 w-5" /> : <Package className="h-5 w-5" />}
+                {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </button>
-              <h2 className="text-xl font-semibold text-gray-900">Offers Management</h2>
+              <button
+                onClick={() => navigate('/hk/admin/dashboard')}
+                className="hidden lg:block p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"
+              >
+                <Package className="h-5 w-5" />
+              </button>
+              <h2 className="text-lg md:text-xl font-semibold text-gray-900">Offers Management</h2>
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-sm text-gray-600">
@@ -956,10 +965,10 @@ export default function AdminOffersPage() {
           )}
 
                   {/* Content */}
-          <div className="p-6">
+          <div className="p-3 md:p-6">
             {/* Filters */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 p-4 md:p-6 mb-4 md:mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <input
@@ -967,14 +976,14 @@ export default function AdminOffersPage() {
                     placeholder="Search offers..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-2 text-xs md:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
                 
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="px-4 py-2 text-xs md:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="all">All Status</option>
                   <option value="active">Active</option>
@@ -987,7 +996,7 @@ export default function AdminOffersPage() {
                 <select
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="px-4 py-2 text-xs md:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="all">All Categories</option>
                   {CATEGORIES.map(category => (
@@ -1185,12 +1194,12 @@ export default function AdminOffersPage() {
               </div>
             ) : (
               /* List View */
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-3 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           <div className="flex items-center">
                             <input
                               type="checkbox"
@@ -1200,7 +1209,7 @@ export default function AdminOffersPage() {
                             />
                           </div>
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-3 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Offer
                         </th>
                         <th 
@@ -1212,10 +1221,10 @@ export default function AdminOffersPage() {
                             <ArrowUpDown className="h-3 w-3" />
                           </div>
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-3 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Supplier
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-3 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Status
                         </th>
                         <th 
@@ -1236,7 +1245,7 @@ export default function AdminOffersPage() {
                             <ArrowUpDown className="h-3 w-3" />
                           </div>
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-3 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Actions
                         </th>
                       </tr>
@@ -1244,7 +1253,7 @@ export default function AdminOffersPage() {
                     <tbody className="bg-white divide-y divide-gray-200">
                       {sortedOffers.map((offer) => (
                         <tr key={offer.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap">
+                          <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
                             <input
                               type="checkbox"
                               checked={selectedOffers.includes(offer.id)}
@@ -1252,7 +1261,7 @@ export default function AdminOffersPage() {
                               className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                             />
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
+                          <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
                             <div className="flex items-center">
                               <div className="flex-shrink-0 h-16 w-16">
                                 <img
@@ -1262,7 +1271,7 @@ export default function AdminOffersPage() {
                                 />
                               </div>
                               <div className="ml-4">
-                                <div className="text-sm font-medium text-gray-900">{offer.title}</div>
+                                <div className="text-xs md:text-sm font-medium text-gray-900">{offer.title}</div>
                                 <div className="text-xs text-blue-600 font-mono bg-blue-50 px-2 py-1 rounded mt-1 inline-block">
                                   ID: {offer.offerId || `oid${offer.id.slice(-6)}`}
                                 </div>
@@ -1275,8 +1284,8 @@ export default function AdminOffersPage() {
                               </div>
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">{formatCurrency(offer.currentPrice)}</div>
+                          <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
+                            <div className="text-xs md:text-sm font-medium text-gray-900">{formatCurrency(offer.currentPrice)}</div>
                             {offer.originalPrice > offer.currentPrice && (
                               <div className="text-sm text-gray-500 line-through">{formatCurrency(offer.originalPrice)}</div>
                             )}
@@ -1284,7 +1293,7 @@ export default function AdminOffersPage() {
                               {offer.status === 'sold' ? 'Sold Out' : `Qty: ${offer.quantity.toLocaleString()}`}
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
+                          <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
                             <div className="flex items-center">
                               {offer.supplier.logo ? (
                                 <img
@@ -1300,9 +1309,9 @@ export default function AdminOffersPage() {
                                 </div>
                               )}
                               <div className="ml-3">
-                                <div className="text-sm font-medium text-gray-900">{offer.supplier.company}</div>
+                                <div className="text-xs md:text-sm font-medium text-gray-900">{offer.supplier.company}</div>
                                 <div className="flex items-center space-x-2">
-                                  <div className="text-sm text-gray-500">Verified: {offer.supplier.isVerified ? 'Yes' : 'No'}</div>
+                                  <div className="text-xs md:text-sm text-gray-500">Verified: {offer.supplier.isVerified ? 'Yes' : 'No'}</div>
                                   <SellerRatingDisplay 
                                     sellerId={offer.supplierId} 
                                     showCount={true}
@@ -1311,7 +1320,7 @@ export default function AdminOffersPage() {
                               </div>
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
+                          <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
                             {getStatusBadge(offer.status || 'pending')}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">

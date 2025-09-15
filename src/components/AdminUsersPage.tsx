@@ -19,6 +19,7 @@ import {
   MessageCircle,
   Settings,
   LogOut,
+  Menu,
   X,
   Clock,
   FileText,
@@ -713,15 +714,15 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
       {/* Mobile Overlay */}
       {sidebarOpen && (
-        <div
+        <div 
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
-
+      
       {/* Sidebar */}
       <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
@@ -737,13 +738,6 @@ export default function AdminUsersPage() {
               <p className="text-xs text-blue-100">ClearLot</p>
             </div>
           </div>
-          {/* Mobile Close Button */}
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="lg:hidden text-white hover:text-blue-100 p-1 rounded-lg transition-colors duration-200"
-          >
-            <X className="h-6 w-6" />
-          </button>
         </div>
 
         {/* Navigation */}
@@ -775,7 +769,10 @@ export default function AdminUsersPage() {
               </h3>
               <div className="space-y-1">
                 <button
-                  onClick={() => navigate('/hk/admin/users')}
+                  onClick={() => {
+                    navigate('/hk/admin/users');
+                    setSidebarOpen(false);
+                  }}
                   className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-medium text-blue-700 bg-blue-50 rounded-lg border border-blue-100"
                 >
                   <Users className="h-5 w-5" />
@@ -850,6 +847,7 @@ export default function AdminUsersPage() {
                 localStorage.removeItem('adminAuthenticated');
                 localStorage.removeItem('adminUser');
                 navigate('/');
+                setSidebarOpen(false);
               }}
               className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 group border border-gray-200"
             >
@@ -860,19 +858,33 @@ export default function AdminUsersPage() {
         </div>
       </div>
 
+      {/* Mobile sidebar overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Main Content */}
-      <div className="flex-1 lg:ml-0">
+      <div className="flex-1 w-full lg:ml-0 overflow-x-hidden">
         {/* Header */}
         <div className="bg-white shadow-sm border-b border-gray-200">
-          <div className="flex items-center justify-between h-16 px-6">
-            <div className="flex items-center space-x-4">
+          <div className="flex items-center justify-between h-14 md:h-16 px-4 md:px-6">
+            <div className="flex items-center space-x-2 md:space-x-4">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
                 className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg lg:hidden"
               >
-                {sidebarOpen ? <X className="h-5 w-5" /> : <Users className="h-5 w-5" />}
+                {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </button>
-              <h2 className="text-xl font-semibold text-gray-900">Users Management</h2>
+              <button
+                onClick={() => navigate('/hk/admin/dashboard')}
+                className="hidden lg:block p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"
+              >
+                <Users className="h-5 w-5" />
+              </button>
+              <h2 className="text-lg md:text-xl font-semibold text-gray-900">Users Management</h2>
             </div>
             <button className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
               <Plus className="h-4 w-4" />
@@ -882,20 +894,20 @@ export default function AdminUsersPage() {
         </div>
 
         {/* Content */}
-        <div className="p-6">
+        <div className="p-3 md:p-6">
           {/* Success Notification */}
           {updateSuccess && (
-            <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
+            <div className="mb-4 md:mb-6 bg-green-50 border border-green-200 rounded-lg p-3 md:p-4">
               <div className="flex items-center">
-                <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
-                <span className="text-green-800 font-medium">{updateSuccess}</span>
+                <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-green-500 mr-2" />
+                <span className="text-green-800 font-medium text-sm md:text-base">{updateSuccess}</span>
               </div>
             </div>
           )}
           
           {/* Filters */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 p-4 md:p-6 mb-4 md:mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <input
@@ -903,14 +915,14 @@ export default function AdminUsersPage() {
                   placeholder="Search users..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 text-xs md:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
               
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="px-4 py-2 text-xs md:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">All Status</option>
                 <option value="active">Active</option>
@@ -920,7 +932,7 @@ export default function AdminUsersPage() {
               <select
                 value={verificationFilter}
                 onChange={(e) => setVerificationFilter(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="px-4 py-2 text-xs md:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">All Verification</option>
                 <option value="not_submitted">Not Submitted</option>
@@ -939,16 +951,16 @@ export default function AdminUsersPage() {
           </div>
 
           {/* Users Table */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       User
                     </th>
                     <th 
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700"
+                      className="px-3 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700"
                       onClick={() => handleSort('joinDate')}
                     >
                       <div className="flex items-center space-x-1">
@@ -956,15 +968,15 @@ export default function AdminUsersPage() {
                         <ArrowUpDown className="h-3 w-3" />
                       </div>
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Verification
                     </th>
                     {/* Role column header removed - all users can both buy and sell */}
                     <th 
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700"
+                      className="px-3 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700"
                       onClick={() => handleSort('totalOffers')}
                     >
                       <div className="flex items-center space-x-1">
@@ -981,7 +993,7 @@ export default function AdminUsersPage() {
                         <ArrowUpDown className="h-3 w-3" />
                       </div>
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
@@ -989,26 +1001,26 @@ export default function AdminUsersPage() {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {sortedUsers.map((user) => (
                     <tr key={user.id} className="hover:bg-gray-50">
-                                             <td className="px-6 py-4 whitespace-nowrap">
+                                             <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
                          <div className="flex items-center">
-                           <div className="flex-shrink-0 h-10 w-10">
+                           <div className="flex-shrink-0 h-8 w-8 md:h-10 md:w-10">
                              {user.companyLogo ? (
                                <img
                                  src={user.companyLogo}
                                  alt={user.company}
-                                 className="h-10 w-10 rounded-full object-cover border border-gray-200"
+                                 className="h-8 w-8 md:h-10 md:w-10 rounded-full object-cover border border-gray-200"
                                />
                              ) : (
-                               <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                                 <span className="text-sm font-medium text-blue-600">
+                               <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                 <span className="text-xs md:text-sm font-medium text-blue-600">
                                    {user.email.charAt(0).toUpperCase()}
                                  </span>
                                </div>
                              )}
                            </div>
-                           <div className="ml-4">
-                             <div className="text-sm font-medium text-gray-900">{user.email}</div>
-                             <div className="text-sm text-gray-500 flex items-center">
+                           <div className="ml-2 md:ml-4">
+                             <div className="text-xs md:text-sm font-medium text-gray-900">{user.email}</div>
+                             <div className="text-xs md:text-sm text-gray-500 flex items-center">
                                {user.company}
                                {user.rating && user.reviewCount && (
                                  <div className="ml-2 flex items-center">
@@ -1036,18 +1048,18 @@ export default function AdminUsersPage() {
                            </div>
                          </div>
                        </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-xs md:text-sm text-gray-900">
                         {formatDate(user.joinedDate)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
                         {getStatusBadge(user.status)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
                         <div className="flex items-center space-x-2">
                           {getVerificationBadge(user.verificationStatus || 'not_submitted')}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-xs md:text-sm text-gray-900">
                         {user.totalOffers}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

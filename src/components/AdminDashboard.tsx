@@ -272,29 +272,91 @@ export default function AdminDashboard() {
         salesPerDayPercentage
       });
 
+      // Calculate user statistics
+      const offersByUser: { [key: string]: number } = {};
+      offers.forEach(offer => {
+        if (!offer.deleted && offer.supplierId) {
+          offersByUser[offer.supplierId] = (offersByUser[offer.supplierId] || 0) + 1;
+        }
+      });
+
+      const purchasesByUser: { [key: string]: number } = {};
+      purchases.forEach(purchase => {
+        if (purchase.buyerId) {
+          purchasesByUser[purchase.buyerId] = (purchasesByUser[purchase.buyerId] || 0) + 1;
+        }
+      });
+
       const recentUsers = users
         .sort((a, b) => new Date(b.joinedDate || (a as any).createdAt).getTime() - new Date(a.joinedDate || (a as any).createdAt).getTime())
         .slice(0, 5)
-        .map(user => ({
-          id: user.id,
-          type: 'user' as const,
-          title: `👤 New User Registration`,
-          description: `${user.company} (${user.email})`,
-          timestamp: user.joinedDate || (user as any).createdAt,
-          status: user.verificationStatus
-        }));
+        .map(user => {
+          const userStats = {
+            totalOffers: offersByUser[user.id] || 0,
+            totalPurchases: purchasesByUser[user.id] || 0,
+            location: user.address || 'N/A'
+          };
+          
+          // Debug: Log user data for modal
+          console.log('User data for modal:', {
+            id: user.id,
+            company: user.company,
+            email: user.email,
+            address: user.address,
+            totalOffers: userStats.totalOffers,
+            totalPurchases: userStats.totalPurchases,
+            location: userStats.location
+          });
+          
+          return {
+            id: user.id,
+            type: 'user' as const,
+            title: `👤 New User Registration`,
+            description: `${user.company} (${user.email})`,
+            timestamp: user.joinedDate || (user as any).createdAt,
+            status: user.verificationStatus,
+            userData: {
+              ...user,
+              ...userStats
+            }
+          };
+        });
 
       const recentOffers = offers
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         .slice(0, 5)
-        .map(offer => ({
-          id: offer.id,
-          type: 'offer' as const,
-          title: `📦 New Offer Posted`,
-          description: `${offer.title} (ID: ${offer.id})`,
-          timestamp: offer.createdAt,
-          status: offer.status
-        }));
+        .map(offer => {
+          // Get supplier information from the offer's supplier field
+          const supplierName = offer.supplier?.company || 'Unknown Supplier';
+          
+          // Debug: Log the offer data to see what's available
+          console.log('Offer data for modal:', {
+            id: offer.id,
+            title: offer.title,
+            quantity: offer.quantity,
+            quantityType: typeof offer.quantity,
+            quantityValue: offer.quantity,
+            currentPrice: offer.currentPrice,
+            originalPrice: offer.originalPrice,
+            supplier: offer.supplier,
+            allOfferKeys: Object.keys(offer)
+          });
+          
+          return {
+            id: offer.id,
+            type: 'offer' as const,
+            title: `📦 New Offer Posted`,
+            description: `${offer.title} (ID: ${offer.id})`,
+            timestamp: offer.createdAt,
+            status: offer.status,
+            offerData: {
+              ...offer,
+              supplierName, // Include supplier name for display
+              price: offer.currentPrice || offer.originalPrice,
+              quantity: offer.quantity !== undefined ? offer.quantity : (offer as any).availableQuantity || (offer as any).totalQuantity || 0
+            }
+          };
+        });
 
       const recentPurchases = purchases
         .sort((a, b) => new Date(b.purchaseDate || b.timestamp).getTime() - new Date(a.purchaseDate || a.timestamp).getTime())
@@ -303,6 +365,9 @@ export default function AdminDashboard() {
           // Find seller and buyer information
           const seller = users.find(user => user.id === purchase.sellerId);
           const buyer = users.find(user => user.id === purchase.buyerId);
+          
+          // Find the offer information
+          const offer = offers.find(offer => offer.id === purchase.offerId);
           
           const sellerName = seller?.company || 'Unknown Seller';
           const buyerName = buyer?.company || 'Unknown Buyer';
@@ -314,7 +379,14 @@ export default function AdminDashboard() {
             description: `${sellerName} → ${buyerName} (HK$${purchase.totalAmount?.toLocaleString() || '0'}) (ID: ${purchase.id})`,
             timestamp: purchase.purchaseDate || purchase.timestamp,
             status: purchase.status,
-            purchaseData: purchase // Include full purchase data for modal
+            purchaseData: {
+              ...purchase,
+              buyerName,
+              sellerName,
+              amount: purchase.totalAmount,
+              offerTitle: offer?.title || purchase.offerTitle || 'N/A',
+              createdAt: purchase.purchaseDate || purchase.createdAt || purchase.timestamp
+            }
           };
         });
 
@@ -623,6 +695,10 @@ export default function AdminDashboard() {
   };
 
   const handleActivityClick = (activity: any) => {
+    // Don't show modal for payment receipt activities since they have their own review button
+    if (activity.id && activity.id.startsWith('receipt_')) {
+      return;
+    }
     setSelectedActivity(activity);
     setShowActivityDetailsModal(true);
   };
@@ -858,15 +934,15 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
       {/* Mobile Overlay */}
       {sidebarOpen && (
-        <div
+        <div 
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
-
+      
       {/* Sidebar */}
       <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
@@ -882,13 +958,6 @@ export default function AdminDashboard() {
               <p className="text-xs text-blue-100">ClearLot</p>
             </div>
           </div>
-          {/* Mobile Close Button */}
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="lg:hidden text-white hover:text-blue-100 p-1 rounded-lg transition-colors duration-200"
-          >
-            <X className="h-6 w-6" />
-          </button>
         </div>
 
         {/* Navigation */}
@@ -901,7 +970,10 @@ export default function AdminDashboard() {
               </h3>
               <div className="space-y-1">
                 <button
-                  onClick={() => navigate('/hk/admin/dashboard')}
+                  onClick={() => {
+                    navigate('/hk/admin/dashboard');
+                    setSidebarOpen(false);
+                  }}
                   className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-medium text-blue-700 bg-blue-50 rounded-lg border border-blue-100"
                 >
                   <BarChart3 className="h-5 w-5" />
@@ -991,7 +1063,10 @@ export default function AdminDashboard() {
               </div>
             </div>
             <button
-              onClick={handleLogout}
+              onClick={() => {
+                handleLogout();
+                setSidebarOpen(false);
+              }}
               className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 group border border-gray-200"
             >
               <LogOut className="h-5 w-5 group-hover:text-red-600" />
@@ -1002,30 +1077,30 @@ export default function AdminDashboard() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 lg:ml-0">
+      <div className="flex-1 w-full lg:ml-0 overflow-x-hidden">
         {/* Header */}
         <div className="bg-white shadow-sm border-b border-gray-200">
-          <div className="flex items-center justify-between h-16 px-6">
-            <div className="flex items-center space-x-4">
+          <div className="flex items-center justify-between h-14 md:h-16 px-4 md:px-6">
+            <div className="flex items-center space-x-2 md:space-x-4">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
                 className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg lg:hidden"
               >
                 {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </button>
-              <div className="flex items-center space-x-3">
-                <div className="bg-blue-100 p-2 rounded-lg">
-                  <BarChart3 className="h-6 w-6 text-blue-600" />
+              <div className="flex items-center space-x-2 md:space-x-3">
+                <div className="bg-blue-100 p-1.5 md:p-2 rounded-lg">
+                  <BarChart3 className="h-5 w-5 md:h-6 md:w-6 text-blue-600" />
                 </div>
-                <h1 className="text-xl font-semibold text-gray-900">Dashboard</h1>
+                <h1 className="text-lg md:text-xl font-semibold text-gray-900">Dashboard</h1>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 md:space-x-4">
               <button
                 onClick={loadDashboardData}
                 className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"
               >
-                <RefreshCw className="h-5 w-5" />
+                <RefreshCw className="h-4 w-4 md:h-5 md:w-5" />
               </button>
             </div>
           </div>
@@ -1034,134 +1109,130 @@ export default function AdminDashboard() {
         {/* Dashboard Content */}
         <div className="p-3 md:p-6">
           {/* Stats Cards */}
-          <div className="space-y-4 md:space-y-6 mb-6 md:mb-8">
-            {/* Mobile-Optimized Grid Layout */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
-              {/* Total Users Card */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs md:text-sm font-medium text-gray-600 truncate">Total Users</p>
-                    <p className="text-xl md:text-2xl font-bold text-gray-900">{stats.totalUsers}</p>
-                  </div>
-                  <div className="p-2 md:p-3 bg-blue-100 rounded-full flex-shrink-0">
-                    <Users className="h-4 w-4 md:h-6 md:w-6 text-blue-600" />
-                  </div>
+          <div className="space-y-3 md:space-y-6 mb-4 md:mb-8">
+            {/* Upper Row - 3 Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
+            <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 p-3 md:p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs md:text-sm font-medium text-gray-600">Total Users</p>
+                  <p className="text-lg md:text-2xl font-bold text-gray-900">{stats.totalUsers}</p>
                 </div>
-                <div className="mt-3 md:mt-4 flex items-center text-xs md:text-sm">
-                  <TrendingUp className="h-3 w-3 md:h-4 md:w-4 text-green-500 mr-1 flex-shrink-0" />
-                  <span className="text-green-600 truncate">+{stats.newUsersToday} today</span>
+                <div className="p-1.5 md:p-3 bg-blue-100 rounded-full flex-shrink-0">
+                  <Users className="h-4 w-4 md:h-6 md:w-6 text-blue-600" />
                 </div>
               </div>
+              <div className="mt-2 md:mt-4 flex items-center text-xs md:text-sm">
+                <TrendingUp className="h-3 w-3 md:h-4 md:w-4 text-green-500 mr-1" />
+                <span className="text-green-600">+{stats.newUsersToday} today</span>
+              </div>
+            </div>
 
-              {/* Total Offers Card */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs md:text-sm font-medium text-gray-600 truncate">Total Offers</p>
-                    <p className="text-xl md:text-2xl font-bold text-gray-900">{stats.totalOffers}</p>
-                  </div>
-                  <div className="p-2 md:p-3 bg-green-100 rounded-full flex-shrink-0">
-                    <Package className="h-4 w-4 md:h-6 md:w-6 text-green-600" />
-                  </div>
+            <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 p-3 md:p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs md:text-sm font-medium text-gray-600">Total Offers</p>
+                  <p className="text-lg md:text-2xl font-bold text-gray-900">{stats.totalOffers}</p>
                 </div>
-                <div className="mt-3 md:mt-4 flex items-center text-xs md:text-sm">
-                  <TrendingUp className="h-3 w-3 md:h-4 md:w-4 text-green-500 mr-1 flex-shrink-0" />
-                  <span className="text-green-600 truncate">{stats.activeOffers} active</span>
+                <div className="p-1.5 md:p-3 bg-green-100 rounded-full flex-shrink-0">
+                  <Package className="h-4 w-4 md:h-6 md:w-6 text-green-600" />
                 </div>
               </div>
+              <div className="mt-2 md:mt-4 flex items-center text-xs md:text-sm">
+                <TrendingUp className="h-3 w-3 md:h-4 md:w-4 text-green-500 mr-1" />
+                <span className="text-green-600">{stats.activeOffers} active</span>
+              </div>
+            </div>
 
-              {/* Total Transactions Card */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs md:text-sm font-medium text-gray-600 truncate">Total Transactions</p>
-                    <p className="text-xl md:text-2xl font-bold text-gray-900">{stats.totalTransactions}</p>
-                  </div>
-                  <div className="p-2 md:p-3 bg-yellow-100 rounded-full flex-shrink-0">
-                    <ShoppingCart className="h-4 w-4 md:h-6 md:w-6 text-yellow-600" />
-                  </div>
+            <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 p-3 md:p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs md:text-sm font-medium text-gray-600">Total Transactions</p>
+                  <p className="text-lg md:text-2xl font-bold text-gray-900">{stats.totalTransactions}</p>
                 </div>
-                <div className="mt-3 md:mt-4 flex items-center text-xs md:text-sm">
-                  <TrendingUp className="h-3 w-3 md:h-4 md:w-4 text-gray-500 mr-1 flex-shrink-0" />
-                  <span className="text-gray-600 truncate">All transaction types</span>
+                <div className="p-1.5 md:p-3 bg-yellow-100 rounded-full flex-shrink-0">
+                  <ShoppingCart className="h-4 w-4 md:h-6 md:w-6 text-yellow-600" />
                 </div>
               </div>
+              <div className="mt-2 md:mt-4 flex items-center text-xs md:text-sm">
+                <TrendingUp className="h-3 w-3 md:h-4 md:w-4 text-gray-500 mr-1" />
+                <span className="text-gray-600">All transaction types</span>
+              </div>
+            </div>
 
-              {/* Sales Turn Card */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs md:text-sm font-medium text-gray-600 truncate">Sales Turn</p>
-                    <p className="text-lg md:text-2xl font-bold text-gray-900 truncate">HK${stats.totalRevenue.toLocaleString()}</p>
-                  </div>
-                  <div className="p-2 md:p-3 bg-green-100 rounded-full flex-shrink-0">
-                    <DollarSign className="h-4 w-4 md:h-6 md:w-6 text-green-600" />
-                  </div>
+            <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 p-3 md:p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs md:text-sm font-medium text-gray-600">Sales Turn</p>
+                  <p className="text-sm md:text-2xl font-bold text-gray-900">HK${stats.totalRevenue.toLocaleString()}</p>
                 </div>
-                <div className="mt-3 md:mt-4 flex items-center text-xs md:text-sm">
-                  <TrendingUp className="h-3 w-3 md:h-4 md:w-4 text-green-500 mr-1 flex-shrink-0" />
-                  <span className="text-green-600 truncate">Approved transactions only</span>
+                <div className="p-1.5 md:p-3 bg-green-100 rounded-full flex-shrink-0">
+                  <DollarSign className="h-4 w-4 md:h-6 md:w-6 text-green-600" />
                 </div>
               </div>
+              <div className="mt-2 md:mt-4 flex items-center text-xs md:text-sm">
+                <TrendingUp className="h-3 w-3 md:h-4 md:w-4 text-green-500 mr-1" />
+                <span className="text-green-600">Approved transactions only</span>
+              </div>
+            </div>
+            </div>
 
-              {/* Platform Fee Earnings Card */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs md:text-sm font-medium text-gray-600 truncate">Platform Fee Earnings</p>
-                    <p className="text-lg md:text-2xl font-bold text-gray-900 truncate">HK${stats.platformFeeTotal.toLocaleString()}</p>
-                  </div>
-                  <div className="p-2 md:p-3 bg-purple-100 rounded-full flex-shrink-0">
-                    <DollarSign className="h-4 w-4 md:h-6 md:w-6 text-purple-600" />
-                  </div>
+            {/* Lower Row - 3 Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 p-3 md:p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs md:text-sm font-medium text-gray-600">Platform Fee Earnings</p>
+                  <p className="text-sm md:text-2xl font-bold text-gray-900">HK${stats.platformFeeTotal.toLocaleString()}</p>
                 </div>
-                <div className="mt-3 md:mt-4 flex items-center text-xs md:text-sm">
-                  <TrendingUp className="h-3 w-3 md:h-4 md:w-4 text-green-500 mr-1 flex-shrink-0" />
-                  <span className="text-green-600 truncate">3% fee rate (approved only)</span>
+                <div className="p-1.5 md:p-3 bg-purple-100 rounded-full flex-shrink-0">
+                  <DollarSign className="h-4 w-4 md:h-6 md:w-6 text-purple-600" />
                 </div>
               </div>
+              <div className="mt-2 md:mt-4 flex items-center text-xs md:text-sm">
+                <TrendingUp className="h-3 w-3 md:h-4 md:w-4 text-green-500 mr-1" />
+                <span className="text-green-600">3% fee rate (approved only)</span>
+              </div>
+            </div>
 
-              {/* Sales per Day Card */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs md:text-sm font-medium text-gray-600 truncate">Sales per Day</p>
-                    <p className="text-xl md:text-2xl font-bold text-gray-900">{stats.salesPerDayPercentage}%</p>
-                  </div>
-                  <div className="p-2 md:p-3 bg-orange-100 rounded-full flex-shrink-0">
-                    <BarChart3 className="h-4 w-4 md:h-6 md:w-6 text-orange-600" />
-                  </div>
+            <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 p-3 md:p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs md:text-sm font-medium text-gray-600">Sales per Day</p>
+                  <p className="text-lg md:text-2xl font-bold text-gray-900">{stats.salesPerDayPercentage}%</p>
                 </div>
-                <div className="mt-3 md:mt-4 flex items-center text-xs md:text-sm">
-                  <TrendingUp className="h-3 w-3 md:h-4 md:w-4 text-orange-500 mr-1 flex-shrink-0" />
-                  <span className="text-orange-600 truncate">vs 7-day average</span>
+                <div className="p-1.5 md:p-3 bg-orange-100 rounded-full flex-shrink-0">
+                  <BarChart3 className="h-4 w-4 md:h-6 md:w-6 text-orange-600" />
                 </div>
               </div>
+              <div className="mt-2 md:mt-4 flex items-center text-xs md:text-sm">
+                <TrendingUp className="h-3 w-3 md:h-4 md:w-4 text-orange-500 mr-1" />
+                <span className="text-orange-600">vs 7-day average</span>
+              </div>
+            </div>
 
-              {/* Completed Orders Card */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs md:text-sm font-medium text-gray-600 truncate">Completed Orders</p>
-                    <p className="text-xl md:text-2xl font-bold text-gray-900">{stats.completedOrders}</p>
-                  </div>
-                  <div className="p-2 md:p-3 bg-emerald-100 rounded-full flex-shrink-0">
-                    <Activity className="h-4 w-4 md:h-6 md:w-6 text-emerald-600" />
-                  </div>
+            <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 p-3 md:p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs md:text-sm font-medium text-gray-600">Completed Orders</p>
+                  <p className="text-lg md:text-2xl font-bold text-gray-900">{stats.completedOrders}</p>
                 </div>
-                <div className="mt-3 md:mt-4 flex items-center text-xs md:text-sm">
-                  <TrendingUp className="h-3 w-3 md:h-4 md:w-4 text-green-500 mr-1 flex-shrink-0" />
-                  <span className="text-green-600 truncate">Successfully delivered</span>
+                <div className="p-1.5 md:p-3 bg-emerald-100 rounded-full flex-shrink-0">
+                  <Activity className="h-4 w-4 md:h-6 md:w-6 text-emerald-600" />
                 </div>
               </div>
+              <div className="mt-2 md:mt-4 flex items-center text-xs md:text-sm">
+                <TrendingUp className="h-3 w-3 md:h-4 md:w-4 text-green-500 mr-1" />
+                <span className="text-green-600">Successfully delivered</span>
+              </div>
+            </div>
             </div>
           </div>
 
           {/* Recent Activity */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+          <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200">
             <div className="px-4 md:px-6 py-3 md:py-4 border-b border-gray-200">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-2 md:space-y-0">
+              <div className="flex items-center justify-between">
                 <h3 className="text-base md:text-lg font-semibold text-gray-900">Recent Activity</h3>
                 <div className="text-xs md:text-sm text-gray-500">
                   {filteredActivity.length} of {recentActivity.length} activities
@@ -1170,7 +1241,7 @@ export default function AdminDashboard() {
             </div>
             
             {/* Filter Controls */}
-            <div className="px-4 md:px-6 py-3 md:py-4 border-b border-gray-200 bg-gray-50">
+            <div className="px-4 md:px-6 py-4 border-b border-gray-200 bg-gray-50">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
                 {/* Activity Type Filter */}
                 <div>
@@ -1178,7 +1249,7 @@ export default function AdminDashboard() {
                   <select
                     value={activityTypeFilter}
                     onChange={(e) => setActivityTypeFilter(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 text-xs md:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="all">All Types</option>
                     <option value="user">New Users</option>
@@ -1196,7 +1267,7 @@ export default function AdminDashboard() {
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 text-xs md:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="all">All Status</option>
                     <option value="active">Active</option>
@@ -1213,7 +1284,7 @@ export default function AdminDashboard() {
                   <select
                     value={dateRangeFilter}
                     onChange={(e) => setDateRangeFilter(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 text-xs md:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="all">All Time</option>
                     <option value="today">Today</option>
@@ -1230,7 +1301,7 @@ export default function AdminDashboard() {
                     value={searchFilter}
                     onChange={(e) => setSearchFilter(e.target.value)}
                     placeholder="Search activities..."
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 text-xs md:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
               </div>
@@ -1253,53 +1324,57 @@ export default function AdminDashboard() {
               )}
             </div>
             
-            <div className="p-3 md:p-6">
+            <div className="p-4 md:p-6">
               {loading ? (
-                <div className="flex items-center justify-center py-6 md:py-8">
-                  <div className="animate-spin rounded-full h-6 w-6 md:h-8 md:w-8 border-b-2 border-blue-600"></div>
+                <div className="flex items-center justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                 </div>
               ) : filteredActivity.length > 0 ? (
                 <div className="space-y-3 md:space-y-4">
                   {filteredActivity.map((activity) => (
                     <div 
                       key={activity.id} 
-                      className={`flex items-start md:items-center space-x-3 md:space-x-4 p-3 md:p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${activity.status === 'pending_review' ? 'border-l-4 border-orange-400 bg-orange-50' : ''}`}
+                      className={`flex items-start md:items-center space-x-3 md:space-x-4 p-3 md:p-4 bg-gray-50 rounded-lg transition-colors duration-200 ${activity.status === 'pending_review' ? 'border-l-4 border-orange-400 bg-orange-50' : ''} ${
+                        activity.id && activity.id.startsWith('receipt_') 
+                          ? 'cursor-default' 
+                          : 'cursor-pointer hover:bg-gray-100'
+                      }`}
                       onClick={() => handleActivityClick(activity)}
                     >
                       <div className="flex-shrink-0">
                         {activity.type === 'user' ? (
-                          <div className="p-1.5 md:p-2 bg-blue-100 rounded-full">
-                            <Users className="h-3 w-3 md:h-4 md:w-4 text-blue-600" />
+                          <div className="p-2 bg-blue-100 rounded-full">
+                            <Users className="h-4 w-4 text-blue-600" />
                           </div>
                         ) : activity.type === 'offer' ? (
-                          <div className="p-1.5 md:p-2 bg-green-100 rounded-full">
-                            <Package className="h-3 w-3 md:h-4 md:w-4 text-green-600" />
+                          <div className="p-2 bg-green-100 rounded-full">
+                            <Package className="h-4 w-4 text-green-600" />
                           </div>
                         ) : activity.type === 'verification' ? (
-                          <div className="p-1.5 md:p-2 bg-purple-100 rounded-full">
-                            <FileText className="h-3 w-3 md:h-4 md:w-4 text-purple-600" />
+                          <div className="p-2 bg-purple-100 rounded-full">
+                            <FileText className="h-4 w-4 text-purple-600" />
                           </div>
                         ) : activity.type === 'delivery_reminder' ? (
-                          <div className="p-1.5 md:p-2 bg-yellow-100 rounded-full">
-                            <AlertTriangle className="h-3 w-3 md:h-4 md:w-4 text-yellow-600" />
+                          <div className="p-2 bg-yellow-100 rounded-full">
+                            <AlertTriangle className="h-4 w-4 text-yellow-600" />
                           </div>
                         ) : activity.type === 'report' ? (
-                          <div className="p-1.5 md:p-2 bg-red-100 rounded-full">
-                            <FileText className="h-3 w-3 md:h-4 md:w-4 text-red-600" />
+                          <div className="p-2 bg-red-100 rounded-full">
+                            <FileText className="h-4 w-4 text-red-600" />
                           </div>
                         ) : activity.status === 'pending_review' ? (
-                          <div className="p-1.5 md:p-2 bg-orange-100 rounded-full">
-                            <Receipt className="h-3 w-3 md:h-4 md:w-4 text-orange-600" />
+                          <div className="p-2 bg-orange-100 rounded-full">
+                            <Receipt className="h-4 w-4 text-orange-600" />
                           </div>
                         ) : (
-                          <div className="p-1.5 md:p-2 bg-yellow-100 rounded-full">
-                            <ShoppingCart className="h-3 w-3 md:h-4 md:w-4 text-yellow-600" />
+                          <div className="p-2 bg-yellow-100 rounded-full">
+                            <ShoppingCart className="h-4 w-4 text-yellow-600" />
                           </div>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm md:text-base font-semibold text-gray-900 mb-1 truncate">{activity.title}</p>
-                        <p className="text-xs md:text-sm text-gray-600 line-clamp-2 md:truncate">{activity.description}</p>
+                        <p className="text-sm md:text-base font-semibold text-gray-900 mb-1">{activity.title}</p>
+                        <p className="text-xs md:text-sm text-gray-600 truncate">{activity.description}</p>
                         {activity.status === 'pending_review' && activity.type === 'transaction' && (
                           <button
                             onClick={(e) => {
@@ -1329,7 +1404,7 @@ export default function AdminDashboard() {
                         <p className="text-xs text-gray-500">
                           {formatHKDate(new Date(activity.timestamp))}
                         </p>
-                        <p className="text-xs text-gray-400">
+                        <p className="text-xs text-gray-400 hidden md:block">
                           {formatHKTime(new Date(activity.timestamp))}
                         </p>
                         {activity.status && (

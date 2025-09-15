@@ -72,6 +72,7 @@ export default function AdminTransactionsPage() {
 
   const [showLogisticsModal, setShowLogisticsModal] = useState(false);
   const [showShippingModal, setShowShippingModal] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showDeliveryModal, setShowDeliveryModal] = useState(false);
   const [adminNotes, setAdminNotes] = useState('');
   const [transactions, setTransactions] = useState<Purchase[]>([]);
@@ -82,7 +83,6 @@ export default function AdminTransactionsPage() {
     approvalStatus?: 'pending' | 'approved' | 'rejected';
   }>>([]);
   const [loading, setLoading] = useState(true);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
 
@@ -509,15 +509,15 @@ export default function AdminTransactionsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
       {/* Mobile Overlay */}
       {sidebarOpen && (
-        <div
+        <div 
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
-
+      
       {/* Sidebar */}
       <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
@@ -533,13 +533,6 @@ export default function AdminTransactionsPage() {
               <p className="text-xs text-blue-100">ClearLot</p>
             </div>
           </div>
-          {/* Mobile Close Button */}
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="lg:hidden text-white hover:text-blue-100 p-1 rounded-lg transition-colors duration-200"
-          >
-            <X className="h-6 w-6" />
-          </button>
         </div>
 
         {/* Navigation */}
@@ -649,6 +642,7 @@ export default function AdminTransactionsPage() {
                 localStorage.removeItem('adminAuthenticated');
                 localStorage.removeItem('adminUser');
                 navigate('/');
+                setSidebarOpen(false);
               }}
               className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 group border border-gray-200"
             >
@@ -659,19 +653,33 @@ export default function AdminTransactionsPage() {
         </div>
       </div>
 
+      {/* Mobile sidebar overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Main Content */}
-      <div className="flex-1 lg:ml-0">
+      <div className="flex-1 w-full lg:ml-0 overflow-x-hidden">
         {/* Header */}
         <div className="bg-white shadow-sm border-b border-gray-200">
-          <div className="flex items-center justify-between h-16 px-6">
-            <div className="flex items-center space-x-4">
+          <div className="flex items-center justify-between h-14 md:h-16 px-4 md:px-6">
+            <div className="flex items-center space-x-2 md:space-x-4">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
                 className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg lg:hidden"
               >
-                {sidebarOpen ? <X className="h-5 w-5" /> : <ShoppingCart className="h-5 w-5" />}
+                {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </button>
-              <h2 className="text-xl font-semibold text-gray-900">Transactions Management</h2>
+              <button
+                onClick={() => navigate('/hk/admin/dashboard')}
+                className="hidden lg:block p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"
+              >
+                <ShoppingCart className="h-5 w-5" />
+              </button>
+              <h2 className="text-lg md:text-xl font-semibold text-gray-900">Transactions Management</h2>
             </div>
             <div className="flex items-center space-x-4">
               {actionLoading && (
@@ -700,10 +708,10 @@ export default function AdminTransactionsPage() {
         </div>
 
         {/* Content */}
-        <div className="p-6">
+        <div className="p-3 md:p-6">
           {/* Filters */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 p-4 md:p-6 mb-4 md:mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <input
@@ -711,14 +719,14 @@ export default function AdminTransactionsPage() {
                   placeholder="Search transactions..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 text-xs md:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
               
               <select
                 value={paymentStatusFilter}
                 onChange={(e) => setPaymentStatusFilter(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="px-4 py-2 text-xs md:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">All Order Status</option>
                 <option value="pending">Pending</option>
@@ -732,7 +740,7 @@ export default function AdminTransactionsPage() {
               <select
                 value={approvalStatusFilter}
                 onChange={(e) => setApprovalStatusFilter(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="px-4 py-2 text-xs md:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">All Approval Details</option>
                 <option value="pending">Payment Pending</option>
@@ -751,15 +759,15 @@ export default function AdminTransactionsPage() {
           </div>
 
           {/* Transactions Table */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Transaction
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Purchase ID
                     </th>
                     <th 
@@ -771,13 +779,13 @@ export default function AdminTransactionsPage() {
                         <ArrowUpDown className="h-3 w-3" />
                       </div>
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Payment Method
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Order Status
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status Details
                     </th>
                     <th 
@@ -789,7 +797,7 @@ export default function AdminTransactionsPage() {
                         <ArrowUpDown className="h-3 w-3" />
                       </div>
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
@@ -797,7 +805,7 @@ export default function AdminTransactionsPage() {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {sortedTransactions.map((transaction) => (
                     <tr key={transaction.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-10 w-10">
                             {transaction.offer?.images && transaction.offer.images.length > 0 ? (
@@ -817,10 +825,10 @@ export default function AdminTransactionsPage() {
                             </div>
                           </div>
                           <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">
+                            <div className="text-xs md:text-sm font-medium text-gray-900">
                               {transaction.offer?.title || `Offer ID: ${transaction.offerId}`}
                             </div>
-                            <div className="text-sm text-gray-500">Qty: {transaction.quantity}</div>
+                            <div className="text-xs md:text-sm text-gray-500">Qty: {transaction.quantity}</div>
                             <div className="flex items-center mt-1 space-x-2">
                               <span className="text-xs text-gray-500">
                                 Buyer: {transaction.buyer?.company || transaction.buyerId}
@@ -833,7 +841,7 @@ export default function AdminTransactionsPage() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
                         <div className="text-sm font-mono text-gray-600 bg-gray-50 px-2 py-1 rounded border">
                           {transaction.id}
                         </div>
@@ -841,12 +849,12 @@ export default function AdminTransactionsPage() {
                           {transaction.paymentDetails?.transactionId || 'N/A'}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">{formatCurrency(transaction.unitPrice)}</div>
-                        <div className="text-sm text-gray-500">Fee: {formatCurrency(transaction.platformFee)}</div>
+                      <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
+                        <div className="text-xs md:text-sm font-medium text-gray-900">{formatCurrency(transaction.unitPrice)}</div>
+                        <div className="text-xs md:text-sm text-gray-500">Fee: {formatCurrency(transaction.platformFee)}</div>
                         <div className="text-sm font-semibold text-gray-900">Total: {formatCurrency(transaction.finalAmount)}</div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
                         <div className="flex items-center space-x-2">
                           {getPaymentMethodIcon(transaction.paymentMethod)}
                           <span className="text-sm text-gray-900 capitalize">
@@ -854,7 +862,7 @@ export default function AdminTransactionsPage() {
                           </span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
                         <div className="space-y-1">
                           <select
                             value={transaction.status}
@@ -883,7 +891,7 @@ export default function AdminTransactionsPage() {
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
                         <div className="space-y-1">
                           {getPaymentStatusBadge(transaction.status)}
                           {transaction.paymentApprovalStatus && (

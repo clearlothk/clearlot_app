@@ -13,6 +13,18 @@ export default function ActivityDetailsModal({ isOpen, onClose, activity }: Acti
   const renderUserDetails = (userData: any) => {
     if (!userData) return <p className="text-gray-500">No user data available</p>;
 
+    // Debug: Log the user data received by the modal
+    console.log('ActivityDetailsModal - userData received:', {
+      id: userData.id,
+      company: userData.company,
+      email: userData.email,
+      address: userData.address,
+      location: userData.location,
+      totalOffers: userData.totalOffers,
+      totalPurchases: userData.totalPurchases,
+      allFields: Object.keys(userData)
+    });
+
     return (
       <div className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -110,6 +122,18 @@ export default function ActivityDetailsModal({ isOpen, onClose, activity }: Acti
   const renderOfferDetails = (offerData: any) => {
     if (!offerData) return <p className="text-gray-500">No offer data available</p>;
 
+    // Debug: Log the offer data received by the modal
+    console.log('ActivityDetailsModal - offerData received:', {
+      quantity: offerData.quantity,
+      quantityType: typeof offerData.quantity,
+      quantityValue: offerData.quantity,
+      price: offerData.price,
+      supplierName: offerData.supplierName,
+      title: offerData.title,
+      allFields: Object.keys(offerData),
+      rawOfferData: offerData
+    });
+
     return (
       <div className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -128,7 +152,9 @@ export default function ActivityDetailsModal({ isOpen, onClose, activity }: Acti
               <DollarSign className="h-5 w-5 text-green-600" />
               <div>
                 <p className="text-sm font-medium text-gray-700">Price</p>
-                <p className="text-lg font-semibold text-green-600">HK${offerData.price || 'N/A'}</p>
+                <p className="text-lg font-semibold text-green-600">
+                  {offerData.price ? `HK$${offerData.price.toLocaleString()}` : 'HK$N/A'}
+                </p>
               </div>
             </div>
 
@@ -136,7 +162,11 @@ export default function ActivityDetailsModal({ isOpen, onClose, activity }: Acti
               <Package className="h-5 w-5 text-green-600" />
               <div>
                 <p className="text-sm font-medium text-gray-700">Quantity</p>
-                <p className="text-sm text-gray-900">{offerData.quantity || 'N/A'}</p>
+                <p className="text-sm text-gray-900">
+                  {offerData.quantity !== undefined && offerData.quantity !== null 
+                    ? offerData.quantity 
+                    : 'N/A'}
+                </p>
               </div>
             </div>
           </div>
@@ -218,7 +248,9 @@ export default function ActivityDetailsModal({ isOpen, onClose, activity }: Acti
               <DollarSign className="h-5 w-5 text-yellow-600" />
               <div>
                 <p className="text-sm font-medium text-gray-700">Amount</p>
-                <p className="text-lg font-semibold text-yellow-600">HK${purchaseData.amount || 'N/A'}</p>
+                <p className="text-lg font-semibold text-yellow-600">
+                  {purchaseData.amount ? `HK$${purchaseData.amount.toLocaleString()}` : 'HK$N/A'}
+                </p>
               </div>
             </div>
 
