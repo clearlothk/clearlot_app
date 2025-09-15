@@ -1585,7 +1585,7 @@ export default function HistoryPage() {
                           </h4>
                         </div>
                         
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between overflow-x-auto pb-2 md:pb-0">
                           {(() => {
                             // 根據用戶角色顯示不同的步驟
                             if (activeTab === 'orders') {
@@ -1759,8 +1759,8 @@ export default function HistoryPage() {
                                 (step.step === 6 && transaction.status === 'completed' && activeTab === 'mySales' && !transaction.hasRating);
 
                             return (
-                              <div key={step.step} className="flex items-center group">
-                                <div className={`flex flex-col items-center ${index < (activeTab === 'orders' ? 4 : 5) ? 'flex-1' : ''} ${shouldShowPadding ? 'pt-2 md:pt-4 pb-1 md:pb-2' : ''}`}>
+                              <div key={step.step} className="flex items-center group flex-shrink-0">
+                                <div className={`flex flex-col items-center min-w-[60px] md:min-w-0 ${index < (activeTab === 'orders' ? 4 : 5) ? 'flex-1' : ''} ${shouldShowPadding ? 'pt-2 md:pt-4 pb-1 md:pb-2' : ''}`}>
                                   {/* Step Circle with Enhanced Effects - Mobile optimized */}
                                   <div 
                                     className={`relative w-10 h-10 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-2 md:mb-3 border-2 md:border-3 transition-all duration-500 ease-in-out transform step-hover overflow-visible ${
@@ -1836,7 +1836,7 @@ export default function HistoryPage() {
                                   </div>
                                   
                                   {/* Enhanced Step Text - Mobile optimized */}
-                                  <span className={`text-xs md:text-sm font-bold text-center transition-all duration-300 transform ${
+                                  <span className={`text-[10px] md:text-sm font-bold text-center transition-all duration-300 transform leading-tight ${
                                     isCompleted 
                                       ? `${step.color} scale-105` 
                                       : isCurrent 
@@ -1885,7 +1885,7 @@ export default function HistoryPage() {
                                 
                                 {/* Enhanced Arrow and Progress Line - Mobile optimized */}
                                 {index < (activeTab === 'orders' ? 4 : 5) && (
-                                  <div className="flex items-center flex-1 mx-2 md:mx-4">
+                                  <div className="flex items-center flex-1 mx-1 md:mx-4 min-w-[20px] md:min-w-0">
                                     {/* Enhanced Progress Line - Mobile optimized */}
                                     <div className={`flex-1 h-2 md:h-3 rounded-full transition-all duration-700 ease-in-out relative overflow-hidden ${
                                       isCompleted 
@@ -1903,14 +1903,14 @@ export default function HistoryPage() {
                                     </div>
                                     
                                     {/* Enhanced Arrow Container - Mobile optimized */}
-                                    <div className={`ml-2 md:ml-4 p-1 md:p-2 rounded-full transition-all duration-500 transform ${
+                                    <div className={`ml-1 md:ml-4 p-0.5 md:p-2 rounded-full transition-all duration-500 transform ${
                                       isCompleted 
                                         ? `bg-gradient-to-r ${step.gradient} border-2 border-white shadow-lg md:shadow-xl scale-105 md:scale-110` 
                                         : isCurrent
                                           ? 'bg-gradient-to-r from-blue-400 to-blue-500 border-2 border-white shadow-md md:shadow-lg scale-105 md:scale-110 animate-bounce'
                                           : 'bg-gray-100 border-2 border-gray-200 hover:bg-gray-200'
                                     }`}>
-                                      <ArrowRight className={`h-3 w-3 md:h-5 md:w-5 transition-all duration-300 ${
+                                      <ArrowRight className={`h-2 w-2 md:h-5 md:w-5 transition-all duration-300 ${
                                         isCompleted 
                                           ? 'text-white' 
                                           : isCurrent
