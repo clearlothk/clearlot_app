@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MapPin, User, Phone, CheckCircle, ArrowRight, Star, Plus } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { LOCATIONS, DISTRICT_SUBDIVISIONS } from '../constants/categories';
+import { filterPhoneInput, validateHongKongPhone } from '../utils/phoneUtils';
 
 interface DeliveryAddress {
   id: string;
@@ -328,14 +329,28 @@ export default function DeliveryConfirmationModal({
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           聯絡人電話 <span className="text-red-500">*</span>
                         </label>
-                        <input
-                          type="tel"
-                          value={customAddress.contactPersonPhone}
-                          onChange={(e) => setCustomAddress(prev => ({ ...prev, contactPersonPhone: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="請輸入聯絡人電話"
-                          disabled={isLoading}
-                        />
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span className="text-gray-500 text-sm">+852</span>
+                          </div>
+                          <input
+                            type="text"
+                            value={customAddress.contactPersonPhone}
+                            onChange={(e) => {
+                              const filteredValue = filterPhoneInput(e.target.value);
+                              if (filteredValue.length <= 8) {
+                                setCustomAddress(prev => ({ ...prev, contactPersonPhone: filteredValue }));
+                              }
+                            }}
+                            maxLength={8}
+                            className="w-full pl-12 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="12345678"
+                            disabled={isLoading}
+                          />
+                        </div>
+                        {customAddress.contactPersonPhone && !validateHongKongPhone(customAddress.contactPersonPhone) && (
+                          <p className="text-red-500 text-sm mt-1">電話號碼必須是8位數字</p>
+                        )}
                       </div>
                     </div>
                   </div>

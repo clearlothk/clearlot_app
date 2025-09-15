@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, FileText, Eye, Download, CheckCircle, Clock, User, Building } from 'lucide-react';
+import { formatDateForDisplay } from '../utils/dateUtils';
 
 interface BuyerReceiptModalProps {
   isOpen: boolean;
@@ -15,13 +16,7 @@ export default function BuyerReceiptModal({
   if (!isOpen) return null;
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('zh-TW', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    return formatDateForDisplay(dateString, 'datetime');
   };
 
   const hasReceipt = transaction.paymentDetails?.receiptPreview;

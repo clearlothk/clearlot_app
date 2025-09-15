@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Bell, ArrowLeft, CheckCircle, AlertCircle, DollarSign, ShoppingCart, TrendingUp, Settings, Trash2, Eye, EyeOff } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
-import { useNotifications } from '../contexts/NotificationContext';
+import { useSafeNotifications } from '../hooks/useSafeNotifications';
 import type { Notification } from '../types';
 
 export default function NotificationsPage() {
@@ -14,7 +14,7 @@ export default function NotificationsPage() {
     deleteNotification, 
     clearAllNotifications,
     isLoading 
-  } = useNotifications();
+  } = useSafeNotifications();
   
   const [activeTab, setActiveTab] = useState<'all' | 'unread'>('all');
 

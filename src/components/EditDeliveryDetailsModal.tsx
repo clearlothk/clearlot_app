@@ -5,6 +5,7 @@ import { doc, updateDoc, getDoc } from 'firebase/firestore';
 import { LOCATIONS, DISTRICT_SUBDIVISIONS } from '../constants/categories';
 import { firestoreNotificationService } from '../services/firestoreNotificationService';
 import { getCurrentHKTimestamp } from '../utils/dateUtils';
+import { filterPhoneInput, validateHongKongPhone } from '../utils/phoneUtils';
 
 interface DeliveryDetails {
   district: string;
@@ -301,16 +302,27 @@ export default function EditDeliveryDetailsModal({
               聯絡電話 <span className="text-red-500">*</span>
             </label>
             <div className="relative">
-              <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span className="text-gray-500 text-sm">+852</span>
+              </div>
               <input
-                type="tel"
+                type="text"
                 value={formData.contactPersonPhone}
-                onChange={(e) => handleInputChange('contactPersonPhone', e.target.value)}
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="請輸入聯絡電話"
+                onChange={(e) => {
+                  const filteredValue = filterPhoneInput(e.target.value);
+                  if (filteredValue.length <= 8) {
+                    handleInputChange('contactPersonPhone', filteredValue);
+                  }
+                }}
+                maxLength={8}
+                className="w-full pl-12 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="12345678"
                 required
               />
             </div>
+            {formData.contactPersonPhone && !validateHongKongPhone(formData.contactPersonPhone) && (
+              <p className="text-red-500 text-sm mt-1">電話號碼必須是8位數字</p>
+            )}
           </div>
 
           {/* Remarks */}

@@ -6,6 +6,11 @@ import { orderNotificationService } from '../services/orderNotificationService';
 import { priceMonitoringService } from '../services/priceMonitoringService';
 import { getCurrentHKTimestamp } from '../utils/dateUtils';
 
+// Helper function to detect mobile devices
+const isMobileDevice = () => {
+  return window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+};
+
 interface NotificationContextType {
   notifications: Notification[];
   unreadCount: number;
@@ -17,9 +22,11 @@ interface NotificationContextType {
   getNotificationsByType: (type: Notification['type']) => Notification[];
   isLoading: boolean;
   testNotifications: () => Promise<void>;
+  mobileNotifications: Notification[];
+  removeMobileNotification: (notificationId: string) => void;
 }
 
-const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
+export const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
 export const useNotifications = () => {
   const context = useContext(NotificationContext);
@@ -37,6 +44,7 @@ interface NotificationProviderProps {
 export const NotificationProvider: React.FC<NotificationProviderProps> = ({ children, userId }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [mobileNotifications, setMobileNotifications] = useState<Notification[]>([]);
 
   // Load notifications from Firestore on mount
   useEffect(() => {
@@ -210,6 +218,11 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
           tag: newNotification.id
         });
       }
+
+      // Add to mobile notifications for mobile devices
+      if (isMobileDevice()) {
+        setMobileNotifications(prev => [newNotification, ...prev.slice(0, 2)]); // Keep only 3 most recent
+      }
     } catch (error) {
       console.error('❌ Error adding notification:', error);
       
@@ -345,6 +358,12 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     }
   }, [userId, notifications, unreadCount]);
 
+  const removeMobileNotification = useCallback((notificationId: string) => {
+    setMobileNotifications(prev => 
+      prev.filter(notification => notification.id !== notificationId)
+    );
+  }, []);
+
   const value: NotificationContextType = {
     notifications,
     unreadCount,
@@ -355,7 +374,9 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     clearAllNotifications,
     getNotificationsByType,
     isLoading,
-    testNotifications
+    testNotifications,
+    mobileNotifications,
+    removeMobileNotification
   };
 
   return (

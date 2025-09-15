@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { MapPin, User, Phone, Plus, Save, X } from 'lucide-react';
 import { LOCATIONS, DISTRICT_SUBDIVISIONS } from '../constants/categories';
+import { filterPhoneInput, validateHongKongPhone } from '../utils/phoneUtils';
 
 interface DeliveryAddress {
   id: string;
@@ -160,14 +161,28 @@ export default function AddDeliveryAddressCard({ onAdd, onCancel }: AddDeliveryA
             <label className="block text-sm font-medium text-gray-700 mb-2">
               聯絡人電話 <span className="text-red-500">*</span>
             </label>
-            <input
-              type="tel"
-              value={formData.contactPersonPhone}
-              onChange={(e) => setFormData(prev => ({ ...prev, contactPersonPhone: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="請輸入聯絡人電話"
-              required
-            />
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span className="text-gray-500 text-sm">+852</span>
+              </div>
+              <input
+                type="text"
+                value={formData.contactPersonPhone}
+                onChange={(e) => {
+                  const filteredValue = filterPhoneInput(e.target.value);
+                  if (filteredValue.length <= 8) {
+                    setFormData(prev => ({ ...prev, contactPersonPhone: filteredValue }));
+                  }
+                }}
+                maxLength={8}
+                className="w-full pl-12 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="12345678"
+                required
+              />
+            </div>
+            {formData.contactPersonPhone && !validateHongKongPhone(formData.contactPersonPhone) && (
+              <p className="text-red-500 text-sm mt-1">電話號碼必須是8位數字</p>
+            )}
           </div>
         </div>
 

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Bell } from 'lucide-react';
-import { useNotifications } from '../contexts/NotificationContext';
+import { useSafeNotifications } from '../hooks/useSafeNotifications';
 import NotificationDropdown from './NotificationDropdown';
 
 interface ConditionalNotificationHeaderProps {
@@ -8,7 +8,8 @@ interface ConditionalNotificationHeaderProps {
 }
 
 const ConditionalNotificationHeader: React.FC<ConditionalNotificationHeaderProps> = ({ userId }) => {
-  const { unreadCount } = useNotifications();
+  const notifications = useSafeNotifications();
+  const unreadCount = notifications.unreadCount;
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const notificationRef = useRef<HTMLButtonElement>(null);
   const [notificationPosition, setNotificationPosition] = useState({ top: 0, right: 0 });

@@ -5,7 +5,7 @@ import { storage } from '../config/firebase';
 import { updateDoc, doc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { firestoreNotificationService } from '../services/firestoreNotificationService';
-import { getCurrentHKTimestamp } from '../utils/dateUtils';
+import { getCurrentHKTimestamp, formatDateForDisplay } from '../utils/dateUtils';
 
 interface PaymentReceiptModalProps {
   isOpen: boolean;
@@ -103,13 +103,7 @@ export default function PaymentReceiptModal({
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('zh-TW', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    return formatDateForDisplay(dateString, 'datetime');
   };
 
   return (

@@ -1345,34 +1345,34 @@ export default function HistoryPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">我的訂單</h1>
-          <p className="text-xl text-gray-600">查看您的訂單狀態和交易歷史</p>
+        {/* Mobile-Optimized Header */}
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-4xl font-bold text-gray-900 mb-2 md:mb-3">我的訂單</h1>
+          <p className="text-base md:text-xl text-gray-600">查看您的訂單狀態和交易歷史</p>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
+        {/* Mobile-Optimized Stats Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 md:p-6">
             <div className="flex items-center">
-              <div className="bg-blue-100 p-3 rounded-xl">
-                <ShoppingCart className="h-6 w-6 text-blue-600" />
+              <div className="bg-blue-100 p-2 md:p-3 rounded-xl">
+                <ShoppingCart className="h-5 w-5 md:h-6 md:w-6 text-blue-600" />
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">我的訂單</p>
-                <p className="text-2xl font-bold text-gray-900">{activeOrders.length}</p>
+              <div className="ml-3 md:ml-4">
+                <p className="text-xs md:text-sm font-medium text-gray-600">我的訂單</p>
+                <p className="text-lg md:text-2xl font-bold text-gray-900">{activeOrders.length}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 md:p-6">
             <div className="flex items-center">
-              <div className="bg-green-100 p-3 rounded-xl">
-                <Package className="h-6 w-6 text-green-600" />
+              <div className="bg-green-100 p-2 md:p-3 rounded-xl">
+                <Package className="h-5 w-5 md:h-6 md:w-6 text-green-600" />
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">我的銷售</p>
-                <p className="text-2xl font-bold text-gray-900">{activeSales.length}</p>
+              <div className="ml-3 md:ml-4">
+                <p className="text-xs md:text-sm font-medium text-gray-600">我的銷售</p>
+                <p className="text-lg md:text-2xl font-bold text-gray-900">{activeSales.length}</p>
               </div>
             </div>
           </div>
@@ -1382,59 +1382,59 @@ export default function HistoryPage() {
 
         {/* Main Content */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-200">
-          {/* Tab Navigation */}
+          {/* Mobile-Optimized Tab Navigation */}
           <div className="border-b border-gray-200">
-            <nav className="flex space-x-8 px-8 py-4">
+            <nav className="flex space-x-4 md:space-x-8 px-4 md:px-8 py-3 md:py-4">
               <button
                 onClick={() => setActiveTab('mySales')}
-                className={`flex items-center space-x-2 py-2 px-4 rounded-lg font-semibold transition-all duration-200 ${
+                className={`flex items-center space-x-1 md:space-x-2 py-2 px-3 md:px-4 rounded-lg font-semibold transition-all duration-200 text-sm md:text-base ${
                   activeTab === 'mySales'
                     ? 'bg-blue-100 text-blue-700'
                     : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
                 }`}
               >
-                <TrendingUp className="h-5 w-5" />
+                <TrendingUp className="h-4 w-4 md:h-5 md:w-5" />
                 <span>我的銷售</span>
               </button>
               <button
                 onClick={() => setActiveTab('orders')}
-                className={`flex items-center space-x-2 py-2 px-4 rounded-lg font-semibold transition-all duration-200 ${
+                className={`flex items-center space-x-1 md:space-x-2 py-2 px-3 md:px-4 rounded-lg font-semibold transition-all duration-200 text-sm md:text-base ${
                   activeTab === 'orders'
                     ? 'bg-blue-100 text-blue-700'
                     : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
                 }`}
               >
-                <Package className="h-5 w-5" />
+                <Package className="h-4 w-4 md:h-5 md:w-5" />
                 <span>我的訂單</span>
               </button>
 
             </nav>
           </div>
 
-          {/* Filters and Search */}
-          <div className="p-8 border-b border-gray-200">
-            <div className="flex flex-col md:flex-row gap-4">
+          {/* Mobile-Optimized Filters and Search */}
+          <div className="p-4 md:p-8 border-b border-gray-200">
+            <div className="flex flex-col gap-3 md:gap-4">
               <div className="flex-1">
                 <div className="relative">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <Search className="absolute left-3 md:left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 md:h-5 md:w-5 text-gray-400" />
                   <input
                     type="text"
                     placeholder={
-                      activeTab === 'orders' ? "搜索我的訂單、賣家或訂單編號..." : 
-                      "搜索我的銷售、買家或訂單編號..."
+                      activeTab === 'orders' ? "搜索訂單、賣家或編號..." : 
+                      "搜索銷售、買家或編號..."
                     }
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white transition-all duration-200"
+                    className="w-full pl-10 md:pl-12 pr-4 py-2 md:py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white transition-all duration-200 text-sm md:text-base"
                   />
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                <Filter className="h-5 w-5 text-gray-400" />
+                <Filter className="h-4 w-4 md:h-5 md:w-5 text-gray-400" />
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as 'date' | 'amount' | 'status')}
-                  className="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white transition-all duration-200"
+                  className="flex-1 md:flex-none px-3 md:px-4 py-2 md:py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white transition-all duration-200 text-sm md:text-base"
                 >
                   <option value="date">按日期排序</option>
                   <option value="amount">按金額排序</option>
@@ -1445,16 +1445,17 @@ export default function HistoryPage() {
           </div>
 
           {/* Transaction List */}
-          <div className="p-8">
-            <div className="space-y-6">
+          <div className="p-4 md:p-8">
+            <div className="space-y-4 md:space-y-6">
               {currentHistory.map((transaction) => (
-                <div key={transaction.id} className="bg-white rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-all duration-200">
+                <div key={transaction.id} className="bg-white rounded-xl p-4 md:p-6 border border-gray-200 hover:shadow-lg transition-all duration-200">
                   {activeTab === 'orders' || activeTab === 'mySales' ? (
-                    // Modern Order Display
+                    // Mobile-Optimized Order Display
                     <div>
-                      <div className="flex items-center justify-between mb-6">
-                        <div className="flex items-center space-x-4">
-                          <div className={`w-16 h-16 rounded-xl overflow-hidden flex items-center justify-center ${
+                      {/* Mobile Header - Stacked Layout */}
+                      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 md:mb-6">
+                        <div className="flex items-center space-x-3 md:space-x-4 mb-3 md:mb-0">
+                          <div className={`w-12 h-12 md:w-16 md:h-16 rounded-xl overflow-hidden flex items-center justify-center flex-shrink-0 ${
                             activeTab === 'mySales' ? 'bg-green-100' : 'bg-blue-100'
                           }`}>
                             {(transaction as any).productImage ? (
@@ -1472,34 +1473,75 @@ export default function HistoryPage() {
                             ) : null}
                             <div className={`${(transaction as any).productImage ? 'hidden' : ''} flex items-center justify-center w-full h-full`}>
                               {activeTab === 'mySales' ? (
-                                <TrendingUp className="h-6 w-6 text-green-600" />
+                                <TrendingUp className="h-5 w-5 md:h-6 md:w-6 text-green-600" />
                               ) : (
-                                <Package className="h-6 w-6 text-blue-600" />
+                                <Package className="h-5 w-5 md:h-6 md:w-6 text-blue-600" />
                               )}
                             </div>
                           </div>
-                          <div>
-                            <h3 className="text-lg font-semibold text-gray-900">{transaction.offerTitle}</h3>
-                            <p className="text-sm text-gray-600">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-base md:text-lg font-semibold text-gray-900 truncate">{transaction.offerTitle}</h3>
+                            <p className="text-xs md:text-sm text-gray-600">
                               {activeTab === 'mySales' ? '銷售編號: ' : '訂單編號: '}
                               {transaction.id.slice(-8)}
                             </p>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <p className="text-xl font-bold text-gray-900">{formatCurrency(transaction.totalAmount)}</p>
-                          <p className="text-sm text-gray-500">{formatDate(transaction.date)}</p>
+                        <div className="flex items-center justify-between md:block md:text-right">
+                          <div>
+                            <p className="text-lg md:text-xl font-bold text-gray-900">{formatCurrency(transaction.totalAmount)}</p>
+                            <p className="text-xs md:text-sm text-gray-500">{formatDate(transaction.date)}</p>
+                          </div>
+                          {/* Mobile Status Badge */}
+                          <div className={`px-2 py-1 md:px-3 md:py-1.5 rounded-full text-xs font-medium ${
+                            (() => {
+                              const orderStatus = getOrderStatus(
+                                transaction.status, 
+                                (transaction as any).paymentApprovalStatus, 
+                                (transaction as any).shippingApprovalStatus,
+                                activeTab === 'orders' ? 'buyer' : activeTab === 'mySales' ? 'seller' : 'buyer'
+                              );
+                              
+                              if (activeTab === 'orders') {
+                                // 買家端：5個步驟 + 完成狀態
+                                if (orderStatus.step === 7) return 'bg-green-100 text-green-800'; // 已完成
+                                if (orderStatus.step === 5) return 'bg-green-100 text-green-800';
+                                if (orderStatus.step === 4) return 'bg-purple-100 text-purple-800';
+                                if (orderStatus.step === 3) return 'bg-green-100 text-green-800';
+                                if (orderStatus.step === 2) return 'bg-blue-100 text-blue-800';
+                                if (orderStatus.step === 1) return 'bg-yellow-100 text-yellow-800';
+                              } else {
+                                // 賣家端：6個步驟 + 完成狀態
+                                if (orderStatus.step === 7) return 'bg-green-100 text-green-800'; // 已完成
+                                if (orderStatus.step === 6) return 'bg-green-100 text-green-800';
+                                if (orderStatus.step === 5) return 'bg-orange-100 text-orange-800';
+                                if (orderStatus.step === 4) return 'bg-purple-100 text-purple-800';
+                                if (orderStatus.step === 3) return 'bg-green-100 text-green-800';
+                                if (orderStatus.step === 2) return 'bg-blue-100 text-blue-800';
+                                if (orderStatus.step === 1) return 'bg-yellow-100 text-yellow-800';
+                              }
+                              return 'bg-red-100 text-red-800';
+                            })()
+                          }`}>
+                            {getOrderStatus(
+                              transaction.status, 
+                              (transaction as any).paymentApprovalStatus, 
+                              (transaction as any).shippingApprovalStatus,
+                              activeTab === 'orders' ? 'buyer' : activeTab === 'mySales' ? 'seller' : 'buyer'
+                            ).text}
+                          </div>
                         </div>
                       </div>
                       
-                      {/* Order Progress Steps */}
-                      <div className="mb-6">
-                        {/* Status Header */}
-                        <div className="flex items-center justify-between mb-4">
+                      {/* Mobile-Optimized Progress Steps */}
+                      <div className="mb-4 md:mb-6">
+                        {/* Mobile Progress Header */}
+                        <div className="flex items-center justify-between mb-3 md:mb-4">
                           <h4 className="text-sm font-medium text-gray-700">
                             {activeTab === 'mySales' ? '銷售進度' : '訂單進度'}
                           </h4>
-                          <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          {/* Desktop Status Badge - Hidden on Mobile */}
+                          <div className={`hidden md:block px-3 py-1 rounded-full text-xs font-medium ${
                             (() => {
                               const orderStatus = getOrderStatus(
                                 transaction.status, 
@@ -1538,7 +1580,8 @@ export default function HistoryPage() {
                           </div>
                         </div>
                         
-                        <div className="flex items-center justify-between">
+                        {/* Mobile Progress Steps - Simplified */}
+                        <div className="flex items-center justify-between overflow-x-auto pb-2">
                           {(() => {
                             // 根據用戶角色顯示不同的步驟
                             if (activeTab === 'orders') {
@@ -1547,7 +1590,8 @@ export default function HistoryPage() {
                                 { 
                                   step: 1, 
                                   text: '待付款', 
-                                  icon: <Clock className="h-4 w-4" />, 
+                                  shortText: '付款',
+                                  icon: <Clock className="h-3 w-3 md:h-4 md:w-4" />, 
                                   color: 'text-yellow-600', 
                                   bgColor: 'bg-yellow-100', 
                                   borderColor: 'border-yellow-300',
@@ -1558,7 +1602,8 @@ export default function HistoryPage() {
                                 { 
                                   step: 2, 
                                   text: '已付款', 
-                                  icon: <CheckCircle className="h-4 w-4" />, 
+                                  shortText: '確認',
+                                  icon: <CheckCircle className="h-3 w-3 md:h-4 md:w-4" />, 
                                   color: 'text-blue-600', 
                                   bgColor: 'bg-blue-100', 
                                   borderColor: 'border-blue-300',
@@ -1569,7 +1614,8 @@ export default function HistoryPage() {
                                 { 
                                   step: 3, 
                                   text: '已發貨', 
-                                  icon: <Truck className="h-4 w-4" />, 
+                                  shortText: '發貨',
+                                  icon: <Truck className="h-3 w-3 md:h-4 md:w-4" />, 
                                   color: 'text-green-600', 
                                   bgColor: 'bg-green-100', 
                                   borderColor: 'border-green-300',
@@ -1580,7 +1626,8 @@ export default function HistoryPage() {
                                 { 
                                   step: 4, 
                                   text: '已送達', 
-                                  icon: <Package className="h-4 w-4" />, 
+                                  shortText: '送達',
+                                  icon: <Package className="h-3 w-3 md:h-4 md:w-4" />, 
                                   color: 'text-purple-600', 
                                   bgColor: 'bg-purple-100', 
                                   borderColor: 'border-purple-300',
@@ -1591,7 +1638,8 @@ export default function HistoryPage() {
                                 { 
                                   step: 5, 
                                   text: '已完成', 
-                                  icon: <CheckCircle className="h-4 w-4" />, 
+                                  shortText: '完成',
+                                  icon: <CheckCircle className="h-3 w-3 md:h-4 md:w-4" />, 
                                   color: 'text-green-600', 
                                   bgColor: 'bg-green-100', 
                                   borderColor: 'border-green-300',
@@ -1606,7 +1654,8 @@ export default function HistoryPage() {
                                 { 
                                   step: 1, 
                                   text: '待付款', 
-                                  icon: <Clock className="h-4 w-4" />, 
+                                  shortText: '付款',
+                                  icon: <Clock className="h-3 w-3 md:h-4 md:w-4" />, 
                                   color: 'text-yellow-600', 
                                   bgColor: 'bg-yellow-100', 
                                   borderColor: 'border-yellow-300',
@@ -1617,7 +1666,8 @@ export default function HistoryPage() {
                                 { 
                                   step: 2, 
                                   text: '已付款', 
-                                  icon: <CheckCircle className="h-4 w-4" />, 
+                                  shortText: '確認',
+                                  icon: <CheckCircle className="h-3 w-3 md:h-4 md:w-4" />, 
                                   color: 'text-blue-600', 
                                   bgColor: 'bg-blue-100', 
                                   borderColor: 'border-blue-300',
@@ -1628,7 +1678,8 @@ export default function HistoryPage() {
                                 { 
                                   step: 3, 
                                   text: '已發貨', 
-                                  icon: <Truck className="h-4 w-4" />, 
+                                  shortText: '發貨',
+                                  icon: <Truck className="h-3 w-3 md:h-4 md:w-4" />, 
                                   color: 'text-green-600', 
                                   bgColor: 'bg-green-100', 
                                   borderColor: 'border-green-300',
@@ -1639,7 +1690,8 @@ export default function HistoryPage() {
                                 { 
                                   step: 4, 
                                   text: '已送達', 
-                                  icon: <Package className="h-4 w-4" />, 
+                                  shortText: '送達',
+                                  icon: <Package className="h-3 w-3 md:h-4 md:w-4" />, 
                                   color: 'text-purple-600', 
                                   bgColor: 'bg-purple-100', 
                                   borderColor: 'border-purple-300',
@@ -1650,7 +1702,8 @@ export default function HistoryPage() {
                                 { 
                                   step: 5, 
                                   text: 'Clearlot付款給賣家', 
-                                  icon: <DollarSign className="h-4 w-4" />, 
+                                  shortText: '平台付款',
+                                  icon: <DollarSign className="h-3 w-3 md:h-4 md:w-4" />, 
                                   color: 'text-orange-600', 
                                   bgColor: 'bg-orange-100', 
                                   borderColor: 'border-orange-300',
@@ -1661,7 +1714,8 @@ export default function HistoryPage() {
                                 { 
                                   step: 6, 
                                   text: '已完成', 
-                                  icon: <CheckCircle className="h-4 w-4" />, 
+                                  shortText: '完成',
+                                  icon: <CheckCircle className="h-3 w-3 md:h-4 md:w-4" />, 
                                   color: 'text-green-600', 
                                   bgColor: 'bg-green-100', 
                                   borderColor: 'border-green-300',
@@ -1712,159 +1766,106 @@ export default function HistoryPage() {
                                 (step.step === 6 && transaction.status === 'completed' && activeTab === 'mySales' && !transaction.hasRating);
 
                             return (
-                              <div key={step.step} className="flex items-center group">
-                                <div className={`flex flex-col items-center ${index < (activeTab === 'orders' ? 4 : 5) ? 'flex-1' : ''} ${shouldShowPadding ? 'pt-4 pb-2' : ''}`}>
-                                  {/* Step Circle with Enhanced Effects */}
-                                  <div 
-                                    className={`relative w-16 h-16 rounded-full flex items-center justify-center mb-3 border-3 transition-all duration-500 ease-in-out transform step-hover overflow-visible ${
-                                      isCompleted 
-                                        ? `${step.bgColor} ${step.borderColor} shadow-xl ring-4 ring-green-200 scale-105 progress-glow bounce-in` 
-                                        : isCurrent 
-                                          ? `${step.bgColor} ${step.borderColor} shadow-lg ring-6 ring-blue-200 step-pulse scale-110` 
-                                          : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
-                                    } ${isClickable ? 'cursor-pointer hover:scale-125 hover:shadow-2xl hover:ring-8 hover:ring-blue-300 active:scale-95' : ''} ${
-                                      isCurrent ? 'animate-bounce' : ''
-                                    }`}
-                                    title={step.tooltip}
-                                    onClick={() => {
-                                      if (step.step === 1 && transaction.status === 'pending' && activeTab === 'orders') {
-                                        // 買家點擊"待付款" - 查看已上傳的收據
-                                        handlePaymentReceiptClick(transaction);
-                                      } else if (step.step === 3 && transaction.status === 'approved' && activeTab === 'mySales') {
-                                        // 賣家點擊"已發貨" - 發貨相關操作
-                                        handleShippingClick(transaction.id);
-                                      } else if (step.step === 3 && transaction.status === 'shipped' && activeTab === 'mySales') {
-                                        // 賣家點擊"已發貨" - 查看發貨狀態
-                                        handleShippingStatusClick(transaction);
-                                      } else if (step.step === 3 && transaction.status === 'shipped' && activeTab === 'orders') {
-                                        // 買家點擊"已發貨" - 查看發貨照片
-                                        handleShippingStatusClick(transaction);
-                                      } else if (step.step === 4 && transaction.status === 'shipped' && activeTab === 'orders') {
-                                        // 買家點擊"已送達" - 確認送達
-                                        handleDeliveryClick(transaction.id, transaction);
-                                      } else if (step.step === 5 && (transaction.status === 'delivered' || transaction.status === 'completed') && activeTab === 'orders' && !transaction.hasRating) {
-                                        // 買家點擊"已完成" - 評分賣家
-                                        handleRatingClick(transaction);
-                                      } else if (step.step === 6 && transaction.status === 'completed' && activeTab === 'mySales' && !transaction.hasRating) {
-                                        // 賣家點擊"已完成" - 評分買家
-                                        handleSellerRatingClick(transaction);
-                                      }
-                                    }}
-                                  >
-                                    {/* Enhanced Icon with Animation */}
-                                    <div className={`relative transition-all duration-300 transform ${
-                                      isCompleted ? `${step.color} scale-110` : 
-                                      isCurrent ? `${step.color} scale-125 icon-jump` : 
-                                      'text-gray-400'
-                                    }`}>
-                                      {isCompleted || isCurrent ? step.icon : <div className="w-4 h-4" />}
-                                    </div>
-                                    
-                                    {/* Stable Completion Checkmark */}
-                                    {isCompleted && (
-                                      <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                                        <CheckCircle className="w-3 h-3 text-white" />
-                                      </div>
-                                    )}
-                                    
-                                    {/* Rating indicator for completed orders */}
-                                    {step.step === 5 && isCompleted && transaction.hasRating && (
-                                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-yellow-500 rounded-full flex items-center justify-center">
-                                        <span className="text-xs text-white font-bold">★</span>
-                                      </div>
-                                    )}
-                                    
-                                    {/* Clickable indicator */}
-                                    {isClickable && (
-                                      <div className="absolute -top-2 -left-2 w-3 h-3 bg-blue-500 rounded-full animate-pulse opacity-75">
-                                        <div className="w-full h-full bg-blue-400 rounded-full animate-ping"></div>
-                                      </div>
-                                    )}
+                              <div key={step.step} className="flex flex-col items-center flex-shrink-0 min-w-0">
+                                {/* Mobile-Optimized Step Circle */}
+                                <div 
+                                  className={`relative w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center mb-2 border-2 transition-all duration-300 ease-in-out transform ${
+                                    isCompleted 
+                                      ? `${step.bgColor} ${step.borderColor} shadow-lg scale-105` 
+                                      : isCurrent 
+                                        ? `${step.bgColor} ${step.borderColor} shadow-md scale-110` 
+                                        : 'bg-gray-50 border-gray-200'
+                                  } ${isClickable ? 'cursor-pointer hover:scale-125 active:scale-95' : ''} ${
+                                    isCurrent ? 'animate-pulse' : ''
+                                  }`}
+                                  title={step.tooltip}
+                                  onClick={() => {
+                                    if (step.step === 1 && transaction.status === 'pending' && activeTab === 'orders') {
+                                      // 買家點擊"待付款" - 查看已上傳的收據
+                                      handlePaymentReceiptClick(transaction);
+                                    } else if (step.step === 3 && transaction.status === 'approved' && activeTab === 'mySales') {
+                                      // 賣家點擊"已發貨" - 發貨相關操作
+                                      handleShippingClick(transaction.id);
+                                    } else if (step.step === 3 && transaction.status === 'shipped' && activeTab === 'mySales') {
+                                      // 賣家點擊"已發貨" - 查看發貨狀態
+                                      handleShippingStatusClick(transaction);
+                                    } else if (step.step === 3 && transaction.status === 'shipped' && activeTab === 'orders') {
+                                      // 買家點擊"已發貨" - 查看發貨照片
+                                      handleShippingStatusClick(transaction);
+                                    } else if (step.step === 4 && transaction.status === 'shipped' && activeTab === 'orders') {
+                                      // 買家點擊"已送達" - 確認送達
+                                      handleDeliveryClick(transaction.id, transaction);
+                                    } else if (step.step === 5 && (transaction.status === 'delivered' || transaction.status === 'completed') && activeTab === 'orders' && !transaction.hasRating) {
+                                      // 買家點擊"已完成" - 評分賣家
+                                      handleRatingClick(transaction);
+                                    } else if (step.step === 6 && transaction.status === 'completed' && activeTab === 'mySales' && !transaction.hasRating) {
+                                      // 賣家點擊"已完成" - 評分買家
+                                      handleSellerRatingClick(transaction);
+                                    }
+                                  }}
+                                >
+                                  {/* Icon */}
+                                  <div className={`transition-all duration-300 transform ${
+                                    isCompleted ? `${step.color} scale-110` : 
+                                    isCurrent ? `${step.color} scale-125` : 
+                                    'text-gray-400'
+                                  }`}>
+                                    {isCompleted || isCurrent ? step.icon : <div className="w-3 h-3 md:w-4 md:h-4" />}
                                   </div>
                                   
-                                  {/* Enhanced Step Text */}
-                                  <span className={`text-sm font-bold text-center transition-all duration-300 transform ${
-                                    isCompleted 
-                                      ? `${step.color} scale-105` 
-                                      : isCurrent 
-                                        ? `${step.color} scale-110 animate-pulse` 
-                                        : 'text-gray-400 hover:text-gray-600'
-                                  } ${isClickable ? 'cursor-pointer' : ''}`}>
-                                    {step.text}
-                                  </span>
-                                  
-                                  {/* Action hint for clickable steps */}
-                                  {isClickable && (
-                                    <span className="text-xs text-blue-600 font-medium mt-1 animate-pulse">
-                                      {step.step === 1 ? '點擊查看' : 
-                                       step.step === 3 ? '點擊操作' : 
-                                       step.step === 4 ? '點擊確認' : 
-                                       step.step === 5 ? '點擊評分' : '點擊查看'}
-                                    </span>
-                                  )}
-                                  
-                                  {/* Step Date and Time */}
-                                  {(isCompleted || (step.step === 6 && transaction.status === 'completed') || (step.step === 5 && activeTab === 'orders' && (transaction.status === 'delivered' || transaction.status === 'completed'))) && (
-                                    <div className="text-xs text-center mt-1">
-                                      <div className={`font-medium ${
-                                        step.step === 1 ? 'text-yellow-600' :
-                                        step.step === 2 ? 'text-blue-600' :
-                                        step.step === 3 ? 'text-purple-600' :
-                                        step.step === 4 ? 'text-green-600' :
-                                        step.step === 5 ? 'text-green-700' : 'text-gray-600'
-                                      }`}>
-                                        {getStepDateTime(transaction, step.step, activeTab)}
-                                      </div>
+                                  {/* Completion Checkmark */}
+                                  {isCompleted && (
+                                    <div className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-green-500 rounded-full flex items-center justify-center">
+                                      <CheckCircle className="w-2 h-2 md:w-3 md:h-3 text-white" />
                                     </div>
                                   )}
                                   
-                                  {/* Step Number */}
-                                  <span className={`text-xs mt-1 transition-all duration-300 ${
-                                    isCompleted 
-                                      ? 'text-green-600 font-bold' 
-                                      : isCurrent 
-                                        ? step.color 
-                                        : 'text-gray-400'
-                                  }`}>
-                                    {isCompleted ? '✓' : step.step}
-                                  </span>
+                                  {/* Clickable indicator */}
+                                  {isClickable && (
+                                    <div className="absolute -top-1 -left-1 w-2 h-2 md:w-3 md:h-3 bg-blue-500 rounded-full animate-pulse opacity-75">
+                                      <div className="w-full h-full bg-blue-400 rounded-full animate-ping"></div>
+                                    </div>
+                                  )}
                                 </div>
                                 
-                                {/* Enhanced Arrow and Progress Line */}
+                                {/* Mobile Step Text */}
+                                <span className={`text-xs md:text-sm font-medium text-center transition-all duration-300 ${
+                                  isCompleted 
+                                    ? `${step.color}` 
+                                    : isCurrent 
+                                      ? `${step.color} font-bold` 
+                                      : 'text-gray-400'
+                                } ${isClickable ? 'cursor-pointer' : ''}`}>
+                                  <span className="md:hidden">{step.shortText}</span>
+                                  <span className="hidden md:inline">{step.text}</span>
+                                </span>
+                                
+                                {/* Step Number */}
+                                <span className={`text-xs mt-1 transition-all duration-300 ${
+                                  isCompleted 
+                                    ? 'text-green-600 font-bold' 
+                                    : isCurrent 
+                                      ? step.color 
+                                      : 'text-gray-400'
+                                }`}>
+                                  {isCompleted ? '✓' : step.step}
+                                </span>
+                                
+                                {/* Mobile Arrow - Only show between steps */}
                                 {index < (activeTab === 'orders' ? 4 : 5) && (
-                                  <div className="flex items-center flex-1 mx-4">
-                                    {/* Enhanced Progress Line */}
-                                    <div className={`flex-1 h-3 rounded-full transition-all duration-700 ease-in-out relative overflow-hidden ${
+                                  <div className="hidden md:flex items-center flex-1 mx-2">
+                                    <div className={`flex-1 h-1 rounded-full transition-all duration-500 ${
                                       isCompleted 
-                                        ? `bg-gradient-to-r ${step.gradient} shadow-lg` 
+                                        ? `bg-gradient-to-r ${step.gradient}` 
                                         : 'bg-gray-200'
-                                    }`}>
-                                      {/* Animated progress fill */}
-                                      {isCompleted && (
-                                        <div className={`absolute inset-0 bg-gradient-to-r ${step.gradient} animate-pulse`}></div>
-                                      )}
-                                      {/* Shimmer effect for completed steps */}
-                                      {isCompleted && (
-                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-30 shimmer"></div>
-                                      )}
-                                    </div>
-                                    
-                                    {/* Enhanced Arrow Container */}
-                                    <div className={`ml-4 p-2 rounded-full transition-all duration-500 transform ${
+                                    }`}></div>
+                                    <ArrowRight className={`h-4 w-4 ml-2 transition-all duration-300 ${
                                       isCompleted 
-                                        ? `bg-gradient-to-r ${step.gradient} border-2 border-white shadow-xl scale-110` 
+                                        ? step.color 
                                         : isCurrent
-                                          ? 'bg-gradient-to-r from-blue-400 to-blue-500 border-2 border-white shadow-lg scale-110 animate-bounce'
-                                          : 'bg-gray-100 border-2 border-gray-200 hover:bg-gray-200'
-                                    }`}>
-                                      <ArrowRight className={`h-5 w-5 transition-all duration-300 ${
-                                        isCompleted 
-                                          ? 'text-white' 
-                                          : isCurrent
-                                            ? 'text-white'
-                                            : 'text-gray-400'
-                                      }`} />
-                                    </div>
+                                          ? 'text-blue-500'
+                                          : 'text-gray-400'
+                                    }`} />
                                   </div>
                                 )}
                               </div>
@@ -1873,24 +1874,26 @@ export default function HistoryPage() {
                         </div>
                       </div>
                       
-                      {/* Order Details */}
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm border-t pt-4">
-                        <div className="flex items-center space-x-2">
-                          <Package className="h-4 w-4 text-gray-400" />
-                          <span className="text-gray-600">{transaction.quantity} {transaction.unit}</span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <MapPin className="h-4 w-4 text-gray-400" />
-                          <span className="text-gray-600">{transaction.location}</span>
-                        </div>
-                        <div className="flex justify-end">
-                          <button 
-                            onClick={() => handleViewOrderDetails(transaction, activeTab === 'orders' ? 'purchase' : 'sale')}
-                            className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 font-medium"
-                          >
-                            <Eye className="h-4 w-4" />
-                            <span>查看詳情</span>
-                          </button>
+                      {/* Mobile-Optimized Order Details */}
+                      <div className="border-t pt-4">
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 text-sm">
+                          <div className="flex items-center space-x-2">
+                            <Package className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                            <span className="text-gray-600 truncate">{transaction.quantity} {transaction.unit}</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <MapPin className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                            <span className="text-gray-600 truncate">{transaction.location}</span>
+                          </div>
+                          <div className="col-span-2 md:col-span-1 flex justify-end md:justify-end">
+                            <button 
+                              onClick={() => handleViewOrderDetails(transaction, activeTab === 'orders' ? 'purchase' : 'sale')}
+                              className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 font-medium bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-lg transition-colors duration-200"
+                            >
+                              <Eye className="h-4 w-4" />
+                              <span>查看詳情</span>
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>

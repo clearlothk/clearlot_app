@@ -403,22 +403,22 @@ export default function UploadOfferPage() {
     : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 py-4 md:py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">上傳新優惠</h1>
-          <p className="text-xl text-gray-600">列出您的清倉優惠以接觸數千名B2B買家</p>
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-4xl font-bold text-gray-900 mb-2 md:mb-3">上傳新優惠</h1>
+          <p className="text-base md:text-xl text-gray-600">列出您的清倉優惠以接觸數千名B2B買家</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
           {/* Basic Information */}
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
-            <div className="flex items-center mb-6">
-              <div className="bg-blue-100 p-3 rounded-xl">
-                <Package className="h-6 w-6 text-blue-600" />
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 md:p-8">
+            <div className="flex items-center mb-4 md:mb-6">
+              <div className="bg-blue-100 p-2 md:p-3 rounded-xl">
+                <Package className="h-5 w-5 md:h-6 md:w-6 text-blue-600" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 ml-4">基本信息</h2>
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900 ml-3 md:ml-4">基本信息</h2>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -502,14 +502,16 @@ export default function UploadOfferPage() {
           </div>
 
           {/* Pricing & Quantity */}
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
-            <div className="flex items-center mb-6">
-              <div className="bg-green-100 p-3 rounded-xl">
-                <DollarSign className="h-6 w-6 text-green-600" />
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 md:p-8">
+            <div className="flex flex-col md:flex-row md:items-center mb-4 md:mb-6 space-y-3 md:space-y-0">
+              <div className="flex items-center">
+                <div className="bg-green-100 p-2 md:p-3 rounded-xl">
+                  <DollarSign className="h-5 w-5 md:h-6 md:w-6 text-green-600" />
+                </div>
+                <h2 className="text-xl md:text-2xl font-bold text-gray-900 ml-3 md:ml-4">價格與數量</h2>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 ml-4">價格與數量</h2>
               {discountPercentage > 0 && (
-                <div className="ml-auto bg-red-500 text-white px-4 py-2 rounded-lg font-bold">
+                <div className="bg-red-500 text-white px-3 md:px-4 py-1 md:py-2 rounded-lg font-bold text-sm md:text-base">
                   -{discountPercentage}% OFF
                 </div>
               )}
@@ -688,20 +690,22 @@ export default function UploadOfferPage() {
 
 
           {/* Images */}
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
-            <div className="flex items-center mb-6">
-              <div className="bg-purple-100 p-3 rounded-xl">
-                <Camera className="h-6 w-6 text-purple-600" />
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 md:p-8">
+            <div className="flex flex-col md:flex-row md:items-center mb-4 md:mb-6 space-y-2 md:space-y-0">
+              <div className="flex items-center">
+                <div className="bg-purple-100 p-2 md:p-3 rounded-xl">
+                  <Camera className="h-5 w-5 md:h-6 md:w-6 text-purple-600" />
+                </div>
+                <h2 className="text-xl md:text-2xl font-bold text-gray-900 ml-3 md:ml-4">產品圖片</h2>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 ml-4">產品圖片</h2>
-              <span className="ml-auto text-sm text-gray-500">
+              <span className="text-sm text-gray-500">
                 {formData.images.length}/5張圖片
               </span>
             </div>
 
             {/* Image Upload Area */}
             <div
-              className={`border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200 ${
+              className={`border-2 border-dashed rounded-xl p-4 md:p-8 text-center transition-all duration-200 ${
                 dragActive 
                   ? 'border-blue-500 bg-blue-50' 
                   : errors.images 
@@ -713,11 +717,11 @@ export default function UploadOfferPage() {
               onDragOver={handleDrag}
               onDrop={handleFileDrop}
             >
-              <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-lg font-semibold text-gray-700 mb-2">
+              <Upload className="h-8 w-8 md:h-12 md:w-12 text-gray-400 mx-auto mb-3 md:mb-4" />
+              <p className="text-base md:text-lg font-semibold text-gray-700 mb-2">
                 拖放圖片或點擊選擇
               </p>
-              <p className="text-sm text-gray-500 mb-4">
+              <p className="text-xs md:text-sm text-gray-500 mb-3 md:mb-4">
                 上傳最多5張高品質圖片 (JPG, PNG, 每張最大10MB)
               </p>
               <input
@@ -730,7 +734,7 @@ export default function UploadOfferPage() {
               />
               <label
                 htmlFor="image-upload"
-                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200 cursor-pointer inline-block font-semibold"
+                className="bg-blue-600 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200 cursor-pointer inline-block font-semibold text-sm md:text-base"
               >
                 選擇圖片
               </label>
@@ -811,13 +815,15 @@ export default function UploadOfferPage() {
           </div>
 
           {/* Tags */}
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
-            <div className="flex items-center mb-6">
-              <div className="bg-indigo-100 p-3 rounded-xl">
-                <Tag className="h-6 w-6 text-indigo-600" />
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 md:p-8">
+            <div className="flex flex-col md:flex-row md:items-center mb-4 md:mb-6 space-y-2 md:space-y-0">
+              <div className="flex items-center">
+                <div className="bg-indigo-100 p-2 md:p-3 rounded-xl">
+                  <Tag className="h-5 w-5 md:h-6 md:w-6 text-indigo-600" />
+                </div>
+                <h2 className="text-xl md:text-2xl font-bold text-gray-900 ml-3 md:ml-4">標籤</h2>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 ml-4">標籤</h2>
-              <span className="ml-auto text-sm text-gray-500">
+              <span className="text-sm text-gray-500">
                 {formData.tags.length}/10個標籤
               </span>
             </div>
@@ -874,29 +880,31 @@ export default function UploadOfferPage() {
 
 
           {/* Submit Button */}
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">準備好發布了嗎？</h3>
-                <p className="text-gray-600">您的優惠將在24小時內審核並發布。</p>
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 md:p-8">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+              <div className="text-center md:text-left">
+                <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-2">準備好發布了嗎？</h3>
+                <p className="text-sm md:text-base text-gray-600">您的優惠將在24小時內審核並發布。</p>
               </div>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-blue-900 px-8 py-4 rounded-xl hover:from-yellow-300 hover:to-yellow-400 transition-all duration-200 font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3" />
-                    發布中...
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle className="h-5 w-5 mr-3" />
-                    發布優惠
-                  </>
-                )}
-              </button>
+              <div className="flex justify-center md:justify-end">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full md:w-auto bg-gradient-to-r from-yellow-400 to-yellow-500 text-blue-900 px-6 md:px-8 py-3 md:py-4 rounded-xl hover:from-yellow-300 hover:to-yellow-400 transition-all duration-200 font-bold text-base md:text-lg shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader className="animate-spin rounded-full h-4 w-4 md:h-5 md:w-5 border-b-2 border-white mr-2 md:mr-3" />
+                      <span className="text-sm md:text-base">發布中...</span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="h-4 w-4 md:h-5 md:w-5 mr-2 md:mr-3" />
+                      <span className="text-sm md:text-base">發布優惠</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </form>

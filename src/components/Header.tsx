@@ -6,6 +6,8 @@ import ConditionalNotificationHeader from './ConditionalNotificationHeader';
 import ConditionalMessageHeader from './ConditionalMessageHeader';
 import { canAccessMarketplace, canUploadOffers, canSendMessages, canAccessWatchlist, canAccessMyOrders } from '../utils/userUtils';
 import SellerRatingDisplay from './SellerRatingDisplay';
+import { useSafeNotifications } from '../hooks/useSafeNotifications';
+import { listenToTotalUnreadMessageCount } from '../services/messagingService';
 
 
 
@@ -16,6 +18,26 @@ export default function Header() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
+  const [unreadMessageCount, setUnreadMessageCount] = useState(0);
+  
+  // Get notification count from context (with safety check for logout)
+  const notifications = useSafeNotifications();
+  const unreadNotificationCount = notifications.unreadCount;
+
+  // Listen to unread message count changes
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const unsubscribe = listenToTotalUnreadMessageCount(user.id, (count) => {
+      setUnreadMessageCount(count);
+    });
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, [user?.id]);
 
   // Close dropdown when clicking outside and update position on scroll
   useEffect(() => {
@@ -396,10 +418,37 @@ export default function Header() {
                   <div className="text-sm">
                     <div className="font-medium text-gray-900 flex items-center">
                       {user.company || '公司'}
-                      {user.isVerified && (
+                      {user.verificationStatus === 'approved' && (
                         <div className="ml-1 h-4 w-4 bg-green-500 rounded-full flex items-center justify-center">
                           <span className="text-white text-xs">✓</span>
                         </div>
+                      )}
+                    </div>
+                    <div className="flex items-center mt-1 space-x-2">
+                      <span className={`text-xs px-2 py-1 rounded-full font-bold ${
+                        user.verificationStatus === 'approved'
+                          ? 'bg-green-400 text-green-900' 
+                          : user.verificationStatus === 'pending'
+                          ? 'bg-yellow-400 text-yellow-900'
+                          : user.verificationStatus === 'rejected'
+                          ? 'bg-red-400 text-red-900'
+                          : 'bg-gray-400 text-gray-900'
+                      }`}>
+                        {user.verificationStatus === 'approved' ? '✓ 已認證' : 
+                         user.verificationStatus === 'pending' ? '審核中' : 
+                         user.verificationStatus === 'rejected' ? '認證失敗' : 
+                         '未認證'}
+                      </span>
+                      {/* Seller Rating Display */}
+                      <SellerRatingDisplay 
+                        sellerId={user.id} 
+                        showCount={true}
+                        className="text-gray-600"
+                      />
+                      {user.status === 'inactive' && (
+                        <span className="text-xs px-2 py-1 rounded-full font-bold bg-red-500 text-white">
+                          非活躍
+                        </span>
                       )}
                     </div>
                   </div>
@@ -417,16 +466,21 @@ export default function Header() {
                   
                   <button 
                     onClick={() => handleNavigation(`/hk/${user.id}/notifications`)}
-                    className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg flex items-center"
+                    className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg flex items-center relative"
                   >
                     <Bell className="h-4 w-4 mr-3" />
                     通知
+                    {unreadNotificationCount > 0 && (
+                      <span className="absolute right-3 bg-yellow-300 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full min-w-[20px] flex items-center justify-center shadow-sm border border-yellow-400">
+                        {unreadNotificationCount > 99 ? '99+' : unreadNotificationCount}
+                      </span>
+                    )}
                   </button>
                   
                   <button 
                     onClick={() => canSendMessages(user) && handleNavigation(`/hk/${user.id}/messages`)}
                     disabled={!canSendMessages(user)}
-                    className={`w-full text-left px-3 py-2 text-sm rounded-lg flex items-center ${
+                    className={`w-full text-left px-3 py-2 text-sm rounded-lg flex items-center relative ${
                       canSendMessages(user) 
                         ? 'text-gray-700 hover:bg-gray-50' 
                         : 'text-gray-400 cursor-not-allowed'
@@ -434,6 +488,11 @@ export default function Header() {
                   >
                     <MessageCircle className="h-4 w-4 mr-3" />
                     訊息
+                    {canSendMessages(user) && unreadMessageCount > 0 && (
+                      <span className="absolute right-3 bg-yellow-300 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full min-w-[20px] flex items-center justify-center shadow-sm border border-yellow-400">
+                        {unreadMessageCount > 99 ? '99+' : unreadMessageCount}
+                      </span>
+                    )}
                   </button>
                   
                   <button 
@@ -460,6 +519,14 @@ export default function Header() {
                   >
                     <Package className="h-4 w-4 mr-3" />
                     我的訂單
+                  </button>
+                  
+                  <button 
+                    onClick={() => handleNavigation(`/hk/${user.id}/my-offers`)}
+                    className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg flex items-center"
+                  >
+                    <Package className="h-4 w-4 mr-3" />
+                    我的優惠
                   </button>
                   
                   <button 
@@ -496,7 +563,7 @@ export default function Header() {
               <div className="flex flex-col space-y-2 px-3 py-2">
                 <Link
                   to="/hk/login"
-                  className="text-gray-600 hover:text-blue-600 font-medium transition-colors duration-200"
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium text-center"
                 >
                   登入
                 </Link>

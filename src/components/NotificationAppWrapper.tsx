@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
 import { NotificationProvider } from '../contexts/NotificationContext';
+import MobileNotificationManager from './MobileNotificationManager';
 
 interface NotificationAppWrapperProps {
   children: React.ReactNode;
@@ -31,6 +32,7 @@ const NotificationAppWrapper: React.FC<NotificationAppWrapperProps> = ({ childre
   console.log('✅ NotificationAppWrapper: Providing notification context for user:', user.id);
   return (
     <NotificationProvider userId={user.id}>
+      <MobileNotificationManager userId={user.id} />
       {children}
     </NotificationProvider>
   );

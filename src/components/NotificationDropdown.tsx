@@ -13,7 +13,7 @@ import {
   Eye,
   EyeOff
 } from 'lucide-react';
-import { useNotifications } from '../contexts/NotificationContext';
+import { useSafeNotifications } from '../hooks/useSafeNotifications';
 import { Notification } from '../types';
 
 interface NotificationDropdownProps {
@@ -79,7 +79,7 @@ export default function NotificationDropdown({ isOpen, onClose, position, userId
     deleteNotification, 
     clearAllNotifications,
     testNotifications
-  } = useNotifications();
+  } = useSafeNotifications();
   
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'all' | 'unread'>('all');

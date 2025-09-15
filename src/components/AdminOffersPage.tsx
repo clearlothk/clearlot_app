@@ -63,6 +63,7 @@ export default function AdminOffersPage() {
   const [showCompanyLogoModal, setShowCompanyLogoModal] = useState(false);
   const [showEditOfferModal, setShowEditOfferModal] = useState(false);
   const [editingOffer, setEditingOffer] = useState<Offer | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [editFormData, setEditFormData] = useState({
     title: '',
     description: '',
@@ -712,8 +713,18 @@ export default function AdminOffersPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
+      {/* Mobile Overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <div className="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0">
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      }`}>
         {/* Sidebar Header */}
         <div className="flex items-center justify-between h-16 px-6 border-b border-gray-100 bg-gradient-to-r from-blue-600 to-blue-700">
           <div className="flex items-center space-x-3">
@@ -725,6 +736,13 @@ export default function AdminOffersPage() {
               <p className="text-xs text-blue-100">ClearLot</p>
             </div>
           </div>
+          {/* Mobile Close Button */}
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="lg:hidden text-white hover:text-blue-100 p-1 rounded-lg transition-colors duration-200"
+          >
+            <X className="h-6 w-6" />
+          </button>
         </div>
 
         {/* Navigation */}
@@ -737,7 +755,10 @@ export default function AdminOffersPage() {
               </h3>
               <div className="space-y-1">
                 <button
-                  onClick={() => navigate('/hk/admin/dashboard')}
+                  onClick={() => {
+                    navigate('/hk/admin/dashboard');
+                    setSidebarOpen(false);
+                  }}
                   className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-medium text-gray-700 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-200 group"
                 >
                   <BarChart3 className="h-5 w-5 group-hover:text-blue-600" />
@@ -753,7 +774,10 @@ export default function AdminOffersPage() {
               </h3>
               <div className="space-y-1">
                 <button
-                  onClick={() => navigate('/hk/admin/users')}
+                  onClick={() => {
+                    navigate('/hk/admin/users');
+                    setSidebarOpen(false);
+                  }}
                   className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-medium text-gray-700 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-200 group"
                 >
                   <Users className="h-5 w-5 group-hover:text-blue-600" />
@@ -761,7 +785,10 @@ export default function AdminOffersPage() {
                 </button>
                 
                 <button
-                  onClick={() => navigate('/hk/admin/offers')}
+                  onClick={() => {
+                    navigate('/hk/admin/offers');
+                    setSidebarOpen(false);
+                  }}
                   className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-medium text-blue-700 bg-blue-50 rounded-lg border border-blue-100"
                 >
                   <Package className="h-5 w-5" />
@@ -769,7 +796,10 @@ export default function AdminOffersPage() {
                 </button>
                 
                 <button
-                  onClick={() => navigate('/hk/admin/transactions')}
+                  onClick={() => {
+                    navigate('/hk/admin/transactions');
+                    setSidebarOpen(false);
+                  }}
                   className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-medium text-gray-700 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-200 group"
                 >
                   <ShoppingCart className="h-5 w-5 group-hover:text-blue-600" />
@@ -777,7 +807,10 @@ export default function AdminOffersPage() {
                 </button>
                 
                 <button
-                  onClick={() => navigate('/hk/admin/messages')}
+                  onClick={() => {
+                    navigate('/hk/admin/messages');
+                    setSidebarOpen(false);
+                  }}
                   className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-medium text-gray-700 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-200 group"
                 >
                   <MessageCircle className="h-5 w-5 group-hover:text-blue-600" />
@@ -836,10 +869,10 @@ export default function AdminOffersPage() {
           <div className="flex items-center justify-between h-16 px-6">
             <div className="flex items-center space-x-4">
               <button
-                onClick={() => navigate('/hk/admin/dashboard')}
-                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg lg:hidden"
               >
-                <Package className="h-5 w-5" />
+                {sidebarOpen ? <X className="h-5 w-5" /> : <Package className="h-5 w-5" />}
               </button>
               <h2 className="text-xl font-semibold text-gray-900">Offers Management</h2>
             </div>
