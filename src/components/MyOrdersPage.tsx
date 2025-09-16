@@ -1760,16 +1760,16 @@ export default function HistoryPage() {
 
                             return (
                               <div key={step.step} className="flex items-center group flex-shrink-0">
-                                <div className={`flex flex-col items-center min-w-[60px] md:min-w-0 ${index < (activeTab === 'orders' ? 4 : 5) ? 'flex-1' : ''} ${shouldShowPadding ? 'pt-2 md:pt-4 pb-1 md:pb-2' : ''}`}>
-                                  {/* Step Circle with Enhanced Effects - Mobile optimized */}
+                                <div className={`flex flex-col items-center min-w-[60px] md:min-w-[80px] ${index < (activeTab === 'orders' ? 4 : 5) ? 'flex-1' : ''} ${shouldShowPadding ? 'pt-2 md:pt-4 pb-1 md:pb-2' : ''}`}>
+                                  {/* Step Circle with Enhanced Effects - Optimized for both mobile and desktop */}
                                   <div 
-                                    className={`relative w-10 h-10 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-2 md:mb-3 border-2 md:border-3 transition-all duration-500 ease-in-out transform step-hover overflow-visible ${
+                                    className={`relative w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center mb-2 md:mb-3 border-2 transition-all duration-500 ease-in-out transform step-hover overflow-visible ${
                                       isCompleted 
-                                        ? `${step.bgColor} ${step.borderColor} shadow-lg md:shadow-xl ring-2 md:ring-4 ring-green-200 scale-105 progress-glow bounce-in` 
+                                        ? `${step.bgColor} ${step.borderColor} shadow-lg ring-2 ring-green-200 scale-105 progress-glow bounce-in` 
                                         : isCurrent 
-                                          ? `${step.bgColor} ${step.borderColor} shadow-md md:shadow-lg ring-3 md:ring-6 ring-blue-200 step-pulse scale-110` 
+                                          ? `${step.bgColor} ${step.borderColor} shadow-md ring-2 ring-blue-200 step-pulse scale-110` 
                                           : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
-                                    } ${isClickable ? 'cursor-pointer hover:scale-110 md:hover:scale-125 hover:shadow-xl md:hover:shadow-2xl hover:ring-4 md:hover:ring-8 hover:ring-blue-300 active:scale-95' : ''} ${
+                                    } ${isClickable ? 'cursor-pointer hover:scale-110 hover:shadow-xl hover:ring-4 hover:ring-blue-300 active:scale-95' : ''} ${
                                       isCurrent ? 'animate-bounce' : ''
                                     }`}
                                     title={step.tooltip}
@@ -1835,8 +1835,8 @@ export default function HistoryPage() {
                                     )}
                                   </div>
                                   
-                                  {/* Enhanced Step Text - Mobile optimized */}
-                                  <span className={`text-[10px] md:text-sm font-bold text-center transition-all duration-300 transform leading-tight ${
+                                  {/* Enhanced Step Text - Optimized for both mobile and desktop */}
+                                  <span className={`text-[10px] md:text-xs font-bold text-center transition-all duration-300 transform leading-tight max-w-[60px] md:max-w-[80px] ${
                                     isCompleted 
                                       ? `${step.color} scale-105` 
                                       : isCurrent 
@@ -1848,7 +1848,7 @@ export default function HistoryPage() {
                                   
                                   {/* Action hint for clickable steps - Hidden on mobile to save space */}
                                   {isClickable && (
-                                    <span className="hidden md:block text-xs text-blue-600 font-medium mt-1 animate-pulse">
+                                    <span className="hidden md:block text-[10px] text-blue-600 font-medium mt-1 animate-pulse max-w-[60px] md:max-w-[80px] text-center">
                                       {step.step === 1 ? '點擊查看' : 
                                        step.step === 3 ? '點擊操作' : 
                                        step.step === 4 ? '點擊確認' : 
@@ -1883,13 +1883,13 @@ export default function HistoryPage() {
                                   </span>
                                 </div>
                                 
-                                {/* Enhanced Arrow and Progress Line - Mobile optimized */}
+                                {/* Enhanced Arrow and Progress Line - Optimized for both mobile and desktop */}
                                 {index < (activeTab === 'orders' ? 4 : 5) && (
-                                  <div className="flex items-center flex-1 mx-1 md:mx-4 min-w-[20px] md:min-w-0">
-                                    {/* Enhanced Progress Line - Mobile optimized */}
-                                    <div className={`flex-1 h-2 md:h-3 rounded-full transition-all duration-700 ease-in-out relative overflow-hidden ${
+                                  <div className="flex items-center flex-1 mx-2 md:mx-3 min-w-[30px] md:min-w-[40px]">
+                                    {/* Enhanced Progress Line - Optimized for both mobile and desktop */}
+                                    <div className={`flex-1 h-2 rounded-full transition-all duration-700 ease-in-out relative overflow-hidden ${
                                       isCompleted 
-                                        ? `bg-gradient-to-r ${step.gradient} shadow-md md:shadow-lg` 
+                                        ? `bg-gradient-to-r ${step.gradient} shadow-md` 
                                         : 'bg-gray-200'
                                     }`}>
                                       {/* Animated progress fill */}
@@ -1902,15 +1902,15 @@ export default function HistoryPage() {
                                       )}
                                     </div>
                                     
-                                    {/* Enhanced Arrow Container - Mobile optimized */}
-                                    <div className={`ml-1 md:ml-4 p-0.5 md:p-2 rounded-full transition-all duration-500 transform ${
+                                    {/* Enhanced Arrow Container - Optimized for both mobile and desktop */}
+                                    <div className={`ml-2 p-1 rounded-full transition-all duration-500 transform ${
                                       isCompleted 
-                                        ? `bg-gradient-to-r ${step.gradient} border-2 border-white shadow-lg md:shadow-xl scale-105 md:scale-110` 
+                                        ? `bg-gradient-to-r ${step.gradient} border-2 border-white shadow-lg scale-105` 
                                         : isCurrent
-                                          ? 'bg-gradient-to-r from-blue-400 to-blue-500 border-2 border-white shadow-md md:shadow-lg scale-105 md:scale-110 animate-bounce'
+                                          ? 'bg-gradient-to-r from-blue-400 to-blue-500 border-2 border-white shadow-md scale-105 animate-bounce'
                                           : 'bg-gray-100 border-2 border-gray-200 hover:bg-gray-200'
                                     }`}>
-                                      <ArrowRight className={`h-2 w-2 md:h-5 md:w-5 transition-all duration-300 ${
+                                      <ArrowRight className={`h-3 w-3 md:h-4 md:w-4 transition-all duration-300 ${
                                         isCompleted 
                                           ? 'text-white' 
                                           : isCurrent

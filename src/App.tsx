@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocat
 import ScrollToTop from './components/ScrollToTop';
 import { Offer, SearchFilters } from './types';
 import { useAuth, AuthProvider } from './contexts/AuthContext';
+import { auth } from './config/firebase';
 import { SearchProvider, useSearch } from './contexts/SearchContext';
 import { Search, X } from 'lucide-react';
 import Header from './components/Header';
@@ -45,6 +46,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import UserProfilePage from './components/UserProfilePage';
 import CompanyProfilePage from './components/CompanyProfilePage';
 import SlugTestPage from './components/SlugTestPage';
+import EmailVerificationPage from './components/EmailVerificationPage';
 import { Package, AlertCircle, Lock } from 'lucide-react';
 import { getOffers, searchOffers } from './services/firebaseService';
 import { canAccessMarketplace, getRestrictionMessage, isUserActive } from './utils/userUtils';
@@ -63,8 +65,8 @@ function LoginWrapper() {
   };
 
   const handleRegisterSuccess = () => {
-    // 註冊成功後，重定向到根頁面，AuthenticatedRedirect 會根據用戶狀態決定最終目的地
-    navigate('/');
+    // 註冊成功後，重定向到電子郵件驗證頁面
+    navigate('/hk/verify-email');
   };
 
   const handleNavigateToRegister = () => {
@@ -404,11 +406,26 @@ function AuthenticatedRedirect() {
 
   useEffect(() => {
     if (!isLoading && user) {
+      console.log('🔄 AuthenticatedRedirect: User loaded, checking status...');
+      console.log('🔄 AuthenticatedRedirect: User emailVerified:', user.emailVerified);
+      console.log('🔄 AuthenticatedRedirect: User status:', user.status);
+      
+      // Check if user just completed email verification
+      const firebaseUser = auth.currentUser;
+      if (firebaseUser && firebaseUser.emailVerified && !user.emailVerified) {
+        console.log('🔄 AuthenticatedRedirect: User just completed email verification, syncing status...');
+        // Force a page reload to sync the user status
+        window.location.reload();
+        return;
+      }
+      
       // Redirect authenticated users based on their status
       if (isUserActive(user)) {
+        console.log('🔄 AuthenticatedRedirect: User is active, redirecting to marketplace');
         // Active users go to marketplace
         navigate(`/hk/${user.id}/marketplace`, { replace: true });
       } else {
+        console.log('🔄 AuthenticatedRedirect: User is not active, redirecting to company settings');
         // Inactive users go to company settings
         navigate(`/hk/${user.id}/company-settings`, { replace: true });
       }
@@ -538,6 +555,8 @@ function AppContent() {
         <Route path="/hk/login" element={<LoginWrapper />} />
         
         <Route path="/hk/register" element={<LoginWrapper />} />
+        
+        <Route path="/hk/verify-email" element={<EmailVerificationPage />} />
 
         {/* Other app routes */}
         <Route path="/hk/:userId/watchlist" element={

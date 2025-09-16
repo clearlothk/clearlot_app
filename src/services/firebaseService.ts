@@ -1,7 +1,10 @@
 import { 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
-  signOut 
+  signOut,
+  sendEmailVerification,
+  applyActionCode,
+  checkActionCode
 } from 'firebase/auth';
 import { 
   doc, 
@@ -41,6 +44,18 @@ export const registerUser = async (data: RegisterData): Promise<AuthUser> => {
 
     const user = userCredential.user;
 
+    // Send email verification
+    try {
+      await sendEmailVerification(user, {
+        url: `${window.location.origin}/hk`,
+        handleCodeInApp: true
+      });
+      console.log('Email verification sent to:', data.email);
+    } catch (verificationError) {
+      console.error('Failed to send email verification:', verificationError);
+      // Don't fail registration if email verification fails
+    }
+
     // Create user profile in Firestore
     const userData: AuthUser = {
       id: user.uid,
@@ -49,7 +64,8 @@ export const registerUser = async (data: RegisterData): Promise<AuthUser> => {
       company: data.company,
       // role field removed - users can both buy and sell
       isVerified: false,
-      status: 'active', // Set default status to active for all registered users
+      emailVerified: false, // Track email verification status
+      status: 'pending_verification', // Set status to pending verification
       verificationStatus: 'not_submitted', // Set default verification status
       phone: data.phone,
       address: data.location,
@@ -81,18 +97,18 @@ export const registerUser = async (data: RegisterData): Promise<AuthUser> => {
     // Save user data to Firestore
     await setDoc(doc(db, 'users', user.uid), userData);
 
-    // Send welcome notification
+    // Send email verification notification
     try {
       await firestoreNotificationService.addNotification({
         userId: user.uid,
         type: 'system',
-        title: '歡迎來到 ClearLot！🎉',
-        message: '感謝您加入 ClearLot！開始探索優惠商品並與供應商建立聯繫。',
+        title: '請驗證您的電子郵件 📧',
+        message: '我們已向您的電子郵件發送驗證連結。請檢查您的收件箱並點擊連結以完成註冊。',
         isRead: false,
-        priority: 'low'
+        priority: 'high'
       });
     } catch (notificationError) {
-      console.log('Could not send welcome notification:', notificationError);
+      console.log('Could not send email verification notification:', notificationError);
       // Don't fail registration if notification fails
     }
 
@@ -115,6 +131,21 @@ export const loginUser = async (credentials: LoginCredentials): Promise<AuthUser
 
     const user = userCredential.user;
 
+    // Check if email is verified
+    if (!user.emailVerified) {
+      // Update user status to pending verification if not already set
+      try {
+        await updateDoc(doc(db, 'users', user.uid), {
+          emailVerified: false,
+          status: 'pending_verification'
+        });
+      } catch (updateError) {
+        console.error('Failed to update user verification status:', updateError);
+      }
+      
+      throw new Error('EMAIL_NOT_VERIFIED');
+    }
+
     // Get user data from Firestore
     const userDoc = await getDoc(doc(db, 'users', user.uid));
     
@@ -122,7 +153,39 @@ export const loginUser = async (credentials: LoginCredentials): Promise<AuthUser
       throw new Error('User data not found');
     }
 
-    return userDoc.data() as AuthUser;
+    const userData = userDoc.data() as AuthUser;
+
+    // Update user status to active if email is verified
+    if (userData.status === 'pending_verification') {
+      try {
+        await updateDoc(doc(db, 'users', user.uid), {
+          emailVerified: true,
+          status: 'active'
+        });
+        userData.emailVerified = true;
+        userData.status = 'active';
+        
+        // Send welcome notification for first-time login after verification
+        try {
+          console.log('Sending welcome notification for first-time login');
+          await firestoreNotificationService.addNotification({
+            userId: user.uid,
+            type: 'system',
+            title: '歡迎來到 ClearLot！🎉',
+            message: '您的電子郵件已成功驗證！現在可以開始探索優惠商品並與供應商建立聯繫。',
+            isRead: false,
+            priority: 'high'
+          });
+          console.log('Welcome notification sent for first-time login');
+        } catch (notificationError) {
+          console.log('Could not send welcome notification for first-time login:', notificationError);
+        }
+      } catch (updateError) {
+        console.error('Failed to update user status:', updateError);
+      }
+    }
+
+    return userData;
   } catch (error: any) {
     console.error('Login error:', error);
     throw new Error(getErrorMessage(error.code));
@@ -153,6 +216,33 @@ export const getCurrentUser = async (): Promise<AuthUser | null> => {
 
     const userData = userDoc.data() as AuthUser;
     
+    // Sync Firebase Auth email verification status with Firestore
+    if (user.emailVerified && !userData.emailVerified) {
+      console.log('Syncing email verification status from Firebase Auth to Firestore');
+      await updateDoc(doc(db, 'users', user.uid), {
+        emailVerified: true,
+        status: 'active'
+      });
+      userData.emailVerified = true;
+      userData.status = 'active';
+      
+      // Send welcome notification for newly verified users
+      try {
+        console.log('Sending welcome notification for newly verified user');
+        await firestoreNotificationService.addNotification({
+          userId: user.uid,
+          type: 'system',
+          title: '歡迎來到 ClearLot！🎉',
+          message: '您的電子郵件已成功驗證！現在可以開始探索優惠商品並與供應商建立聯繫。',
+          isRead: false,
+          priority: 'high'
+        });
+        console.log('Welcome notification sent for newly verified user');
+      } catch (notificationError) {
+        console.log('Could not send welcome notification for newly verified user:', notificationError);
+      }
+    }
+    
     // Ensure user has status field, default to 'active' if missing
     if (!userData.status) {
       await updateDoc(doc(db, 'users', user.uid), {
@@ -181,25 +271,16 @@ export const updateUserData = async (userId: string, updates: Partial<AuthUser>)
   try {
     await updateDoc(doc(db, 'users', userId), updates);
     
-    // If company logo was updated, also update all offers from this user
-    if (updates.companyLogo !== undefined) {
-      try {
-        const offersRef = collection(db, 'offers');
-        const q = query(offersRef, where('supplierId', '==', userId));
-        const querySnapshot = await getDocs(q);
-        
-        const updatePromises = querySnapshot.docs.map(doc => 
-          updateDoc(doc.ref, {
-            'supplier.logo': updates.companyLogo
-          })
-        );
-        
-        await Promise.all(updatePromises);
-        console.log(`Updated company logo for ${querySnapshot.docs.length} offers`);
-      } catch (error) {
-        console.warn('Failed to update offers with new company logo:', error);
-        // Don't throw error for this, as user update was successful
-      }
+    // If user profile data that affects offers is updated, sync with offers
+    const offerAffectingFields = ['company', 'isVerified', 'companyLogo', 'industry', 'companySize', 'businessType', 'phone', 'address', 'website'];
+    const hasOfferAffectingUpdates = Object.keys(updates).some(key => offerAffectingFields.includes(key));
+    
+    if (hasOfferAffectingUpdates) {
+      console.log('🔄 User profile changes detected that affect offers, syncing...');
+      // Don't await this to avoid blocking the user update
+      updateUserOffersWithCurrentData(userId).catch(error => {
+        console.warn('Failed to sync user offers after profile update:', error);
+      });
     }
   } catch (error: any) {
     console.error('Update user error:', error);
@@ -216,6 +297,262 @@ export const checkEmailExists = async (email: string): Promise<boolean> => {
   } catch (error: any) {
     console.error('Check email error:', error);
     return false;
+  }
+};
+
+// Send email verification
+export const sendEmailVerificationToUser = async (): Promise<void> => {
+  try {
+    const user = auth.currentUser;
+    if (!user) {
+      throw new Error('用戶未登入');
+    }
+
+    if (user.emailVerified) {
+      throw new Error('電子郵件已經驗證');
+    }
+
+    await sendEmailVerification(user, {
+      url: `${window.location.origin}/hk`,
+      handleCodeInApp: true
+    });
+    console.log('Email verification sent to:', user.email);
+  } catch (error: any) {
+    console.error('Send email verification error:', error);
+    throw new Error(getErrorMessage(error.code));
+  }
+};
+
+// Resend email verification
+export const resendEmailVerification = async (): Promise<void> => {
+  try {
+    const user = auth.currentUser;
+    if (!user) {
+      throw new Error('用戶未登入');
+    }
+
+    if (user.emailVerified) {
+      throw new Error('電子郵件已經驗證');
+    }
+
+    await sendEmailVerification(user, {
+      url: `${window.location.origin}/hk`,
+      handleCodeInApp: true
+    });
+    console.log('Email verification resent to:', user.email);
+  } catch (error: any) {
+    console.error('Resend email verification error:', error);
+    throw new Error(getErrorMessage(error.code));
+  }
+};
+
+// Resend email verification for any user by email
+export const resendEmailVerificationByEmail = async (email: string): Promise<void> => {
+  try {
+    // This function would need to be implemented on the backend
+    // For now, we'll show a helpful message
+    console.log('Resend verification requested for email:', email);
+    throw new Error('請使用登入頁面重新發送驗證郵件');
+  } catch (error: any) {
+    console.error('Resend email verification by email error:', error);
+    throw new Error('請使用登入頁面重新發送驗證郵件');
+  }
+};
+
+// Debug function to test email verification
+export const debugEmailVerification = async (): Promise<void> => {
+  try {
+    const user = auth.currentUser;
+    if (!user) {
+      console.log('❌ No user logged in');
+      return;
+    }
+
+    console.log('🔍 Email Verification Debug Info:');
+    console.log('- User ID:', user.uid);
+    console.log('- Email:', user.email);
+    console.log('- Email Verified:', user.emailVerified);
+    console.log('- Current URL:', window.location.href);
+    console.log('- Origin:', window.location.origin);
+    console.log('- Expected verification URL:', `${window.location.origin}/hk/verify-email`);
+
+    // Check if user exists in Firestore
+    const userDoc = await getDoc(doc(db, 'users', user.uid));
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      console.log('- Firestore emailVerified:', userData.emailVerified);
+      console.log('- Firestore status:', userData.status);
+    } else {
+      console.log('❌ User not found in Firestore');
+    }
+  } catch (error) {
+    console.error('Debug email verification error:', error);
+  }
+};
+
+// Debug function to test welcome notification
+export const debugWelcomeNotification = async (): Promise<void> => {
+  try {
+    const user = auth.currentUser;
+    if (!user) {
+      console.log('❌ No user logged in');
+      return;
+    }
+
+    console.log('🔍 Welcome Notification Debug Info:');
+    console.log('- User ID:', user.uid);
+    console.log('- Email:', user.email);
+    console.log('- Firebase Auth emailVerified:', user.emailVerified);
+
+    // Check if user exists in Firestore
+    const userDoc = await getDoc(doc(db, 'users', user.uid));
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      console.log('- Firestore emailVerified:', userData.emailVerified);
+      console.log('- Firestore status:', userData.status);
+      console.log('- Joined Date:', userData.joinedDate);
+      
+      // Check if user should receive welcome notification
+      const shouldSendWelcome = user.emailVerified && userData.emailVerified && userData.status === 'active';
+      console.log('- Should send welcome notification:', shouldSendWelcome);
+      
+      if (shouldSendWelcome) {
+        console.log('✅ User is verified and active - welcome notification should be sent');
+      } else {
+        console.log('❌ User is not ready for welcome notification');
+      }
+    } else {
+      console.log('❌ User not found in Firestore');
+    }
+  } catch (error) {
+    console.error('Debug welcome notification error:', error);
+  }
+};
+
+// Debug function to test notification service
+export const debugNotificationService = async (): Promise<void> => {
+  try {
+    const user = auth.currentUser;
+    if (!user) {
+      console.log('❌ No user logged in for notification debug');
+      return;
+    }
+
+    console.log('🔍 Notification Service Debug Info:');
+    console.log('- User ID:', user.uid);
+    console.log('- Email:', user.email);
+    console.log('- Firebase Auth emailVerified:', user.emailVerified);
+
+    // Test getting notifications
+    try {
+      const notifications = await firestoreNotificationService.getNotifications(user.uid);
+      console.log('- Notifications found:', notifications.length);
+      console.log('- Notifications:', notifications);
+    } catch (error) {
+      console.error('- Error getting notifications:', error);
+    }
+
+    // Test notification subscription
+    try {
+      console.log('- Testing notification subscription...');
+      const unsubscribe = firestoreNotificationService.subscribeToNotifications(user.uid, (notifications) => {
+        console.log('- Subscription callback triggered with notifications:', notifications.length);
+      });
+      
+      // Clean up after 5 seconds
+      setTimeout(() => {
+        unsubscribe();
+        console.log('- Subscription test completed');
+      }, 5000);
+    } catch (error) {
+      console.error('- Error testing subscription:', error);
+    }
+  } catch (error) {
+    console.error('Debug notification service error:', error);
+  }
+};
+
+// Handle email verification action
+export const handleEmailVerification = async (actionCode: string): Promise<void> => {
+  try {
+    // Verify the action code first
+    const actionCodeInfo = await checkActionCode(auth, actionCode);
+    console.log('Action code info:', actionCodeInfo);
+    
+    // Apply the action code
+    await applyActionCode(auth, actionCode);
+    console.log('Action code applied successfully');
+    
+    // Get the email from the action code info
+    const email = actionCodeInfo.data.email;
+    console.log('Email from action code:', email);
+    
+    // Find the user by email in Firestore to get the user ID
+    if (email) {
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('email', '==', email));
+      const querySnapshot = await getDocs(q);
+      
+      if (querySnapshot.empty) {
+        throw new Error('User not found with the provided email');
+      }
+      
+      const userDoc = querySnapshot.docs[0];
+      const userId = userDoc.id;
+      console.log('User ID found:', userId);
+      await updateDoc(doc(db, 'users', userId), {
+        emailVerified: true,
+        status: 'active'
+      });
+      console.log('User status updated in Firestore');
+
+      // Send welcome notification
+      try {
+        await firestoreNotificationService.addNotification({
+          userId: userId,
+          type: 'system',
+          title: '歡迎來到 ClearLot！🎉',
+          message: '您的電子郵件已成功驗證！現在可以開始探索優惠商品並與供應商建立聯繫。',
+          isRead: false,
+          priority: 'high'
+        });
+        console.log('Welcome notification sent');
+      } catch (notificationError) {
+        console.log('Could not send welcome notification:', notificationError);
+      }
+    } else {
+      console.error('No email found in action code');
+      throw new Error('無法獲取用戶信息');
+    }
+    
+    console.log('Email verification completed successfully');
+  } catch (error: any) {
+    console.error('Handle email verification error:', error);
+    throw new Error(getErrorMessage(error.code));
+  }
+};
+
+// Check if user's email is verified
+export const isEmailVerified = (): boolean => {
+  const user = auth.currentUser;
+  return user ? user.emailVerified : false;
+};
+
+// Manual verification bypass for development/testing (use with caution)
+export const manualVerifyUser = async (userId: string): Promise<void> => {
+  try {
+    console.log('⚠️ MANUAL VERIFICATION: Bypassing email verification for user:', userId);
+    
+    // Update user status in Firestore
+    await updateDoc(doc(db, 'users', userId), {
+      emailVerified: true,
+      status: 'active'
+    });
+    
+    console.log('✅ Manual verification completed for user:', userId);
+  } catch (error: any) {
+    console.error('Manual verification error:', error);
+    throw new Error('手動驗證失敗');
   }
 };
 
@@ -240,6 +577,14 @@ const getErrorMessage = (errorCode: string): string => {
       return '嘗試次數過多。請稍後再試。';
     case 'auth/network-request-failed':
       return '網絡連接失敗。請檢查您的網絡連接。';
+    case 'EMAIL_NOT_VERIFIED':
+      return '請先驗證您的電子郵件地址。';
+    case 'auth/invalid-action-code':
+      return '無效的驗證連結。';
+    case 'auth/expired-action-code':
+      return '驗證連結已過期。';
+    case 'auth/user-token-expired':
+      return '驗證連結已過期。';
     default:
       return '發生錯誤。請重試。';
   }
@@ -318,7 +663,7 @@ export const uploadOffer = async (offerData: Omit<Offer, 'id' | 'createdAt' | 's
     const offerId = await generateOfferId();
     console.log('Generated offer ID:', offerId); // Debug log
 
-    // Create offer document
+    // Create offer document with comprehensive supplier data
     const offerDoc = {
       ...offerData,
       offerId: offerId, // Add custom offer ID
@@ -326,7 +671,14 @@ export const uploadOffer = async (offerData: Omit<Offer, 'id' | 'createdAt' | 's
         company: userData.company,
         rating: 0, // Default rating
         isVerified: userData.isVerified,
-        logo: userData.companyLogo || ''
+        logo: userData.companyLogo || '',
+        // Add additional supplier fields for consistency
+        ...(userData.industry && { industry: userData.industry }),
+        ...(userData.companySize && { companySize: userData.companySize }),
+        ...(userData.businessType && { businessType: userData.businessType }),
+        ...(userData.phone && { phone: userData.phone }),
+        ...(userData.address && { address: userData.address }),
+        ...(userData.website && { website: userData.website })
       },
       images: imageUrls,
       createdAt: Timestamp.now().toDate().toISOString(),
@@ -1166,6 +1518,59 @@ export const getAllUsers = async (): Promise<AuthUser[]> => {
   }
 };
 
+// Update all offers from a user with current user data (ensures consistency)
+export const updateUserOffersWithCurrentData = async (userId: string): Promise<void> => {
+  try {
+    console.log('🔄 Updating all offers for user:', userId);
+    
+    // Get current user data
+    const userDoc = await getDoc(doc(db, 'users', userId));
+    if (!userDoc.exists()) {
+      console.warn('User document not found:', userId);
+      return;
+    }
+    
+    const userData = userDoc.data() as AuthUser;
+    console.log('📊 Current user data:', {
+      company: userData.company,
+      isVerified: userData.isVerified,
+      status: userData.status,
+      companyLogo: userData.companyLogo
+    });
+    
+    // Get all offers from this user
+    const offersRef = collection(db, 'offers');
+    const q = query(offersRef, where('supplierId', '==', userId));
+    const querySnapshot = await getDocs(q);
+    
+    console.log(`📦 Found ${querySnapshot.docs.length} offers to update`);
+    
+    // Update each offer with current user data
+    const updatePromises = querySnapshot.docs.map(doc => {
+      const updateData = {
+        'supplier.company': userData.company,
+        'supplier.isVerified': userData.isVerified,
+        'supplier.logo': userData.companyLogo || '',
+        'supplier.rating': 0, // Default rating
+        // Add any other supplier fields that should be synced
+        ...(userData.industry && { 'supplier.industry': userData.industry }),
+        ...(userData.companySize && { 'supplier.companySize': userData.companySize }),
+        ...(userData.businessType && { 'supplier.businessType': userData.businessType })
+      };
+      
+      console.log(`🔄 Updating offer ${doc.id} with:`, updateData);
+      return updateDoc(doc.ref, updateData);
+    });
+    
+    await Promise.all(updatePromises);
+    console.log(`✅ Successfully updated ${querySnapshot.docs.length} offers with current user data`);
+    
+  } catch (error) {
+    console.error('❌ Failed to update user offers with current data:', error);
+    throw error;
+  }
+};
+
 // Update user verification status (admin function)
 export const updateUserVerification = async (userId: string, isVerified: boolean, adminEmail?: string, customReason?: string): Promise<void> => {
   try {
@@ -1188,23 +1593,8 @@ export const updateUserVerification = async (userId: string, isVerified: boolean
     
     await updateUserData(userId, updateData);
     
-    // Update all offers from this user
-    try {
-      const offersRef = collection(db, 'offers');
-      const q = query(offersRef, where('supplierId', '==', userId));
-      const querySnapshot = await getDocs(q);
-      
-      const updatePromises = querySnapshot.docs.map(doc => 
-        updateDoc(doc.ref, {
-          'supplier.isVerified': isVerified
-        })
-      );
-      
-      await Promise.all(updatePromises);
-      console.log(`Updated verification status for ${querySnapshot.docs.length} offers`);
-    } catch (error) {
-      console.warn('Failed to update offers with verification status:', error);
-    }
+    // Update all offers from this user with comprehensive supplier data
+    await updateUserOffersWithCurrentData(userId);
 
     // Send notification to user about verification status change
     console.log(`🔔 Sending verification status notification to user: ${userId}`);

@@ -7,7 +7,7 @@ import { AuthUser } from '../types';
  */
 export const isUserActive = (user: AuthUser | null): boolean => {
   if (!user) return false;
-  return user.status === 'active';
+  return user.status === 'active' && user.emailVerified === true;
 };
 
 /**
@@ -65,6 +65,16 @@ export const canAccessMyOrders = (user: AuthUser | null): boolean => {
 };
 
 /**
+ * Check if a user needs email verification
+ * @param user - The user object
+ * @returns boolean - true if user needs email verification, false otherwise
+ */
+export const needsEmailVerification = (user: AuthUser | null): boolean => {
+  if (!user) return false;
+  return user.status === 'pending_verification' || !user.emailVerified;
+};
+
+/**
  * Get the restriction message for inactive users
  * @param user - The user object
  * @returns string - The restriction message
@@ -79,6 +89,8 @@ export const getRestrictionMessage = (user: AuthUser | null): string => {
       return 'Your account has been suspended. Please contact support for assistance.';
     case 'pending':
       return 'Your account is pending approval. Please wait for admin verification.';
+    case 'pending_verification':
+      return 'Please verify your email address to access this feature.';
     default:
       return 'Access denied. Please contact support for assistance.';
   }

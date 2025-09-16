@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { needsEmailVerification } from '../utils/userUtils';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -37,6 +38,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   if (!user) {
     return <Navigate to={redirectTo} replace />;
+  }
+
+  // Check if user needs email verification
+  if (needsEmailVerification(user)) {
+    return <Navigate to="/hk/verify-email" replace />;
   }
 
   return <>{children}</>;

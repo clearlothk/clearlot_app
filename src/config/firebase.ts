@@ -24,6 +24,9 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 
+// Configure auth settings for email verification
+auth.settings.appVerificationDisabledForTesting = false;
+
 // Temporarily disable Analytics to avoid API key issues
 // let analytics;
 // if (typeof window !== 'undefined') {

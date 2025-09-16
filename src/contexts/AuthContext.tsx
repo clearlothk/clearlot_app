@@ -6,7 +6,12 @@ import {
   loginUser, 
   logoutUser, 
   getCurrentUser, 
-  updateUserData 
+  updateUserData,
+  sendEmailVerificationToUser,
+  resendEmailVerification,
+  handleEmailVerification,
+  isEmailVerified,
+  manualVerifyUser
 } from '../services/firebaseService';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 
@@ -24,6 +29,11 @@ interface AuthContextType {
   isInWatchlist: (offerId: string) => boolean;
   addPurchase: (purchaseId: string) => void;
   updateUser: (updates: Partial<AuthUser>) => Promise<void>;
+  sendEmailVerification: () => Promise<void>;
+  resendEmailVerification: () => Promise<void>;
+  handleEmailVerification: (actionCode: string) => Promise<void>;
+  isEmailVerified: () => boolean;
+  manualVerifyUser: (userId: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -237,7 +247,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     removeSoldOutOffers,
     isInWatchlist,
     addPurchase,
-    updateUser
+    updateUser,
+    sendEmailVerification: sendEmailVerificationToUser,
+    resendEmailVerification,
+    handleEmailVerification,
+    isEmailVerified,
+    manualVerifyUser
   };
 
   console.log('🔐 AuthProvider: Rendering with user:', user ? user.id : 'null', 'isLoading:', isLoading);

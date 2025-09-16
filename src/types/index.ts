@@ -5,6 +5,7 @@ export interface User {
   company: string;
   // role field removed - users can both buy and sell
   isVerified: boolean;
+  emailVerified?: boolean; // Track email verification status
   avatar?: string;
   companyLogo?: string;
   companyCoverPhoto?: string;
@@ -15,7 +16,7 @@ export interface User {
   createdAt?: string;
   // Verification related fields
   verificationStatus?: 'pending' | 'approved' | 'rejected' | 'not_submitted';
-  status?: 'active' | 'inactive';
+  status?: 'active' | 'inactive' | 'pending_verification';
 }
 
 // Enhanced supplier interface for admin use
@@ -110,8 +111,9 @@ export interface AuthUser {
   companyBio?: string;
   // role field removed - users can both buy and sell
   isVerified: boolean;
+  emailVerified?: boolean; // Track email verification status
   isAdmin?: boolean; // Added admin field
-  status: 'active' | 'inactive' | 'suspended' | 'pending'; // Added user status
+  status: 'active' | 'inactive' | 'suspended' | 'pending' | 'pending_verification'; // Added user status
   avatar?: string;
   phone?: string;
   address?: string;

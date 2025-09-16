@@ -32,7 +32,12 @@ export default function LoginPage({ onNavigateToRegister, onLoginSuccess }: Logi
         onLoginSuccess();
       }
     } catch (err: any) {
-      setError(err.message || '登入失敗。請重試。');
+      if (err.message === 'EMAIL_NOT_VERIFIED') {
+        // Redirect to email verification page
+        navigate('/hk/verify-email');
+      } else {
+        setError(err.message || '登入失敗。請重試。');
+      }
     } finally {
       setIsSubmitting(false);
     }

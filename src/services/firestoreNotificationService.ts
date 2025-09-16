@@ -12,7 +12,7 @@ import {
   Timestamp,
   writeBatch
 } from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { db, auth } from '../config/firebase';
 import { Notification } from '../types';
 
 // Firestore notification service for persistent storage
@@ -50,6 +50,19 @@ class FirestoreNotificationService {
   async getNotifications(userId: string, limit: number = 50): Promise<Notification[]> {
     try {
       console.log('🔍 FirestoreNotificationService: Getting notifications for user:', userId);
+      console.log('🔍 FirestoreNotificationService: Auth current user:', auth.currentUser?.uid);
+      
+      // Check if user is authenticated before querying
+      if (!auth.currentUser) {
+        console.log('⚠️ FirestoreNotificationService: No authenticated user, returning empty notifications');
+        return [];
+      }
+      
+      // Verify the userId matches the authenticated user
+      if (auth.currentUser.uid !== userId) {
+        console.log('⚠️ FirestoreNotificationService: User ID mismatch, returning empty notifications');
+        return [];
+      }
       
       const q = query(
         collection(db, this.collectionName),
@@ -161,6 +174,21 @@ class FirestoreNotificationService {
   // Subscribe to notifications for real-time updates
   subscribeToNotifications(userId: string, callback: (notifications: Notification[]) => void) {
     console.log('🔔 FirestoreNotificationService: Setting up real-time subscription for user:', userId);
+    console.log('🔔 FirestoreNotificationService: Auth current user:', auth.currentUser?.uid);
+    
+    // Check if user is authenticated before setting up subscription
+    if (!auth.currentUser) {
+      console.log('⚠️ FirestoreNotificationService: No authenticated user, skipping subscription setup');
+      // Return a no-op unsubscribe function
+      return () => {};
+    }
+    
+    // Verify the userId matches the authenticated user
+    if (auth.currentUser.uid !== userId) {
+      console.log('⚠️ FirestoreNotificationService: User ID mismatch, skipping subscription setup');
+      // Return a no-op unsubscribe function
+      return () => {};
+    }
     
     const q = query(
       collection(db, this.collectionName),
