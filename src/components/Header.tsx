@@ -147,11 +147,11 @@ export default function Header() {
         <div className="flex justify-between items-center h-18 relative">
           {/* Logo */}
           <Link to="/" className="flex items-center hover:opacity-80 transition-opacity duration-200">
-            <div className="bg-blue-600 p-2 rounded-lg">
-              <TrendingUp className="h-6 w-6 text-white" />
-            </div>
-            <span className="ml-3 text-2xl font-bold text-gray-900">ClearLot</span>
-            <span className="ml-2 text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-medium">出貨通</span>
+            <img 
+              src="/ClearlotLogov2.png" 
+              alt="ClearLot" 
+              className="h-10 w-auto"
+            />
           </Link>
 
           {/* Spacer for layout balance */}

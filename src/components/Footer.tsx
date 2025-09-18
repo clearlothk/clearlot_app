@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { TrendingUp, Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
+import { TrendingUp, Mail, MapPin, Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -9,14 +9,15 @@ export default function Footer() {
           {/* Company Info */}
           <div className="lg:col-span-1">
             <div className="flex items-center mb-6">
-              <div className="bg-blue-600 p-2 rounded-lg">
-                <TrendingUp className="h-6 w-6 text-white" />
-              </div>
-              <span className="ml-3 text-2xl font-bold">ClearLot</span>
+              <img 
+                src="/ClearlotLogov2.png" 
+                alt="ClearLot" 
+                className="h-8 w-auto"
+              />
             </div>
             <p className="text-gray-300 mb-6 leading-relaxed">
-              領先的B2B清倉交易平台。
-              與認證供應商聯繫，發掘令人難以置信的節省機會。
+              專業的B2B清倉交易平台。
+              連接優質供應商與企業買家，創造雙贏的商業機會。
             </p>
             <div className="flex space-x-4">
               <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors duration-200">
@@ -36,7 +37,7 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-6">快速連結</h3>
+            <h3 className="text-lg font-semibold mb-6">關於我們</h3>
             <ul className="space-y-3">
               <li>
                 <Link 
@@ -66,13 +67,9 @@ export default function Footer() {
                 <Mail className="h-5 w-5 mr-3 text-blue-400" />
                 <span>support@clearlot.app</span>
               </div>
-              <div className="flex items-center text-gray-300">
-                <Phone className="h-5 w-5 mr-3 text-blue-400" />
-                <span>+852 98765432</span>
-              </div>
               <div className="flex items-start text-gray-300">
                 <MapPin className="h-5 w-5 mr-3 mt-1 text-blue-400" />
-                <span>尖沙咀彌敦道123號<br />100室<br />九龍尖沙咀，香港</span>
+                <span>Flat E10, 13/F, Block E, Tsing Yi Industrial Centre, Phase 2, Tsing Yi, NT</span>
               </div>
             </div>
           </div>

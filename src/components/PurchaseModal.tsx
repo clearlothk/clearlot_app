@@ -45,6 +45,7 @@ interface PaymentDetails {
   receiptFile?: File;
   receiptPreview?: string;
   transactionId?: string;
+  paymentReference?: string;
   amount: number;
   status: PaymentStatus;
   timestamp: string;
@@ -56,6 +57,7 @@ interface FirestorePaymentDetails {
   receiptFile?: string;
   receiptPreview?: string;
   transactionId?: string;
+  paymentReference?: string;
   amount: number;
   status: PaymentStatus;
   timestamp: string;
@@ -223,18 +225,28 @@ export default function PurchaseModal({ offer, isOpen, onClose, onPurchaseComple
   const platformFee = subtotal * 0.03; // 3% platform fee
   const totalAmount = subtotal + platformFee;
 
+  // Generate unique payment reference ID
+  const generatePaymentReference = () => {
+    const timestamp = Date.now().toString().slice(-6); // Last 6 digits of timestamp
+    const random = Math.random().toString(36).substr(2, 4).toUpperCase(); // 4 random chars
+    return `CL${timestamp}${random}`; // Format: CL + 6 digits + 4 chars (e.g., CL123456ABCD)
+  };
+
+  const paymentReference = generatePaymentReference();
+
   const paymentMethods = [
     {
       id: 'bank-transfer' as PaymentMethod,
       name: '銀行轉帳',
       description: '傳統銀行轉帳',
-      icon: Building,
+      icon: CreditCard,
       color: 'bg-blue-500',
       instructions: [
         '轉帳 HKD ' + totalAmount.toFixed(2) + ' 至我們的銀行帳戶',
-        '銀行: 滙豐銀行香港',
-        '帳戶: 123-456789-001',
-        '帳戶名稱: ClearLot Limited',
+        '銀行: 中國銀行(香港)有限公司',
+        '帳戶: 01269500087724',
+        '帳戶名稱: Oriental Pegasus Development Limited',
+        `付款備註: ${paymentReference} (必須填寫)`,
         '付款後上傳轉帳收據'
       ]
     }
@@ -326,6 +338,7 @@ export default function PurchaseModal({ offer, isOpen, onClose, onPurchaseComple
         method: 'bank-transfer',
         receiptFile: file,
         receiptPreview: e.target?.result as string,
+        paymentReference: paymentReference,
         amount: totalAmount,
         status: 'pending',
         timestamp: getCurrentHKTimestamp()
@@ -395,6 +408,7 @@ export default function PurchaseModal({ offer, isOpen, onClose, onPurchaseComple
           method: 'bank-transfer',
           receiptFile: file,
           receiptPreview: e.target?.result as string,
+          paymentReference: paymentReference,
           amount: totalAmount,
           status: 'pending',
           timestamp: getCurrentHKTimestamp()
@@ -464,11 +478,13 @@ export default function PurchaseModal({ offer, isOpen, onClose, onPurchaseComple
         status: 'pending' as const,
         purchaseDate: getCurrentHKTimestamp(),
         paymentMethod: 'bank-transfer',
+        paymentReference: paymentReference, // Add at top level for easy admin access
         paymentDetails: {
           method: 'bank-transfer' as const,
           receiptFile: paymentDetails.receiptFile.name,
           receiptPreview: downloadURL,
           transactionId: `tx_${Math.random().toString(36).substr(2, 9)}`,
+          paymentReference: paymentReference,
           amount: totalAmount,
           status: 'pending' as const,
           timestamp: getCurrentHKTimestamp(),
@@ -479,8 +495,9 @@ export default function PurchaseModal({ offer, isOpen, onClose, onPurchaseComple
       // Save to Firestore
       console.log('Saving purchase data to Firestore...');
       console.log('Purchase data:', purchaseData);
+      console.log('Payment Reference being saved:', paymentReference);
       await setDoc(doc(db, 'purchases', purchaseId), purchaseData);
-      console.log('Purchase saved to Firestore successfully');
+      console.log('Purchase saved to Firestore successfully with payment reference:', paymentReference);
       
       // Send notification to seller about payment receipt upload
       try {
@@ -938,14 +955,28 @@ export default function PurchaseModal({ offer, isOpen, onClose, onPurchaseComple
                   付款指示
                 </h4>
                 <div className="space-y-3">
-                  {selectedMethod.instructions.map((instruction, index) => (
-                    <div key={index} className="flex items-start">
-                      <div className="bg-blue-100 text-blue-600 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-0.5 flex-shrink-0">
-                        {index + 1}
+                  {selectedMethod.instructions.map((instruction, index) => {
+                    const isPaymentReference = instruction.includes('付款備註:');
+                    return (
+                      <div key={index} className={`flex items-start ${isPaymentReference ? 'bg-yellow-50 p-3 rounded-lg border border-yellow-200' : ''}`}>
+                        <div className={`${isPaymentReference ? 'bg-yellow-500 text-white' : 'bg-blue-100 text-blue-600'} rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-0.5 flex-shrink-0`}>
+                          {index + 1}
+                        </div>
+                        <div className="flex-1">
+                          {isPaymentReference ? (
+                            <div>
+                              <p className="text-gray-700 mb-2">付款備註: <span className="font-bold text-yellow-700 bg-yellow-100 px-2 py-1 rounded text-lg">{paymentReference}</span> <span className="text-red-600 font-semibold">(必須填寫)</span></p>
+                              <p className="text-sm text-yellow-700 bg-yellow-100 p-2 rounded border-l-4 border-yellow-400">
+                                <strong>重要:</strong> 請在銀行轉帳時在「備註」或「參考」欄位填寫此編號，以便我們快速識別您的付款。
+                              </p>
+                            </div>
+                          ) : (
+                            <p className="text-gray-700">{instruction}</p>
+                          )}
+                        </div>
                       </div>
-                      <p className="text-gray-700">{instruction}</p>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
@@ -1307,7 +1338,7 @@ export default function PurchaseModal({ offer, isOpen, onClose, onPurchaseComple
                   </li>
                   <li className="flex items-center">
                     <FileText className="h-4 w-4 mr-2" />
-                    在購買歷史中追蹤您的訂單狀態
+                    在我的訂單中追蹤您的訂單狀態
                   </li>
                 </ul>
               </div>
@@ -1374,7 +1405,7 @@ export default function PurchaseModal({ offer, isOpen, onClose, onPurchaseComple
                   </li>
                   <li className="flex items-center">
                     <FileText className="h-4 w-4 mr-2" />
-                    在購買歷史中追蹤您的訂單狀態
+                    在我的訂單中追蹤您的訂單狀態
                   </li>
                 </ul>
               </div>

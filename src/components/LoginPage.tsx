@@ -62,10 +62,11 @@ export default function LoginPage({ onNavigateToRegister, onLoginSuccess }: Logi
         {/* Logo and Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-6">
-            <div className="bg-blue-600 p-3 rounded-xl shadow-lg">
-              <TrendingUp className="h-8 w-8 text-white" />
-            </div>
-            <span className="ml-3 text-3xl font-bold text-gray-900">ClearLot</span>
+            <img 
+              src="/ClearlotLogov2.png" 
+              alt="ClearLot" 
+              className="h-12 w-auto"
+            />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">歡迎回來</h1>
           <p className="text-gray-600">登入以存取獨家B2B優惠</p>

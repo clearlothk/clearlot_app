@@ -11,11 +11,11 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="flex justify-center items-center mb-6">
-              <div className="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
-                <TrendingUp className="h-8 w-8 text-white" />
-              </div>
-              <span className="ml-3 text-3xl font-bold">ClearLot</span>
-              <span className="ml-2 text-lg bg-white/20 px-3 py-1 rounded-full font-medium backdrop-blur-sm">出貨通</span>
+              <img 
+                src="/ClearlotLogov2.png" 
+                alt="ClearLot" 
+                className="h-12 w-auto"
+              />
             </div>
             <h1 className="text-5xl md:text-6xl font-bold mb-6">
               香港領先的B2B
@@ -49,29 +49,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div>
-              <div className="text-3xl md:text-4xl font-bold text-blue-600 mb-2">港幣 180億+</div>
-              <div className="text-gray-600">總節省金額</div>
-            </div>
-            <div>
-              <div className="text-3xl md:text-4xl font-bold text-blue-600 mb-2">15,000+</div>
-              <div className="text-gray-600">認證供應商</div>
-            </div>
-            <div>
-              <div className="text-3xl md:text-4xl font-bold text-blue-600 mb-2">45,000+</div>
-              <div className="text-gray-600">活躍買家</div>
-            </div>
-            <div>
-              <div className="text-3xl md:text-4xl font-bold text-blue-600 mb-2">67%</div>
-              <div className="text-gray-600">平均折扣</div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Features Section */}
       <section className="py-20">
@@ -189,9 +166,10 @@ export default function LandingPage() {
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-r from-blue-600 to-blue-800 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl font-bold mb-6">準備開始節省了嗎？</h2>
+          <h2 className="text-4xl font-bold mb-6">準備開始您的B2B清倉之旅？</h2>
           <p className="text-xl mb-8 max-w-2xl mx-auto">
-            加入數千家已經通過ClearLot的B2B市場節省數百萬的企業。
+            加入ClearLot，探索優質清倉商品，為您的企業創造更多價值。
+            無論您是買家還是賣家，我們都能為您提供專業的服務。
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link

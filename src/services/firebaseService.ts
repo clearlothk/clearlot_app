@@ -28,7 +28,7 @@ import {
   deleteObject 
 } from 'firebase/storage';
 import { auth, db, storage } from '../config/firebase';
-import { AuthUser, RegisterData, LoginCredentials, Offer, Transaction, Purchase } from '../types';
+import { AuthUser, RegisterData, LoginCredentials, Offer, Transaction, Purchase, InvoiceTemplate } from '../types';
 import { firestoreNotificationService } from './firestoreNotificationService';
 import { notificationService } from './notificationService';
 
@@ -131,8 +131,17 @@ export const loginUser = async (credentials: LoginCredentials): Promise<AuthUser
 
     const user = userCredential.user;
 
-    // Check if email is verified
-    if (!user.emailVerified) {
+    // Get user data from Firestore first to check if they're admin
+    const userDoc = await getDoc(doc(db, 'users', user.uid));
+    
+    if (!userDoc.exists()) {
+      throw new Error('User data not found');
+    }
+
+    const userData = userDoc.data() as AuthUser;
+
+    // Check if email is verified (skip for admin users)
+    if (!user.emailVerified && !userData.isAdmin) {
       // Update user status to pending verification if not already set
       try {
         await updateDoc(doc(db, 'users', user.uid), {
@@ -146,14 +155,18 @@ export const loginUser = async (credentials: LoginCredentials): Promise<AuthUser
       throw new Error('EMAIL_NOT_VERIFIED');
     }
 
-    // Get user data from Firestore
-    const userDoc = await getDoc(doc(db, 'users', user.uid));
-    
-    if (!userDoc.exists()) {
-      throw new Error('User data not found');
+    // For admin users, automatically mark email as verified
+    if (userData.isAdmin && !user.emailVerified) {
+      try {
+        await updateDoc(doc(db, 'users', user.uid), {
+          emailVerified: true,
+          status: 'active'
+        });
+        console.log('✅ Admin user email verification bypassed');
+      } catch (updateError) {
+        console.error('Failed to update admin verification status:', updateError);
+      }
     }
-
-    const userData = userDoc.data() as AuthUser;
 
     // Update user status to active if email is verified
     if (userData.status === 'pending_verification') {
@@ -3036,5 +3049,86 @@ export const sendSellerPaymentApprovalNotification = async (purchaseId: string):
       stack: error.stack
     });
     throw new Error('發送賣家付款確認通知失敗。請重試。');
+  }
+};
+
+// Upload logo to Firebase Storage
+export const uploadLogoToStorage = async (file: File, templateId: string): Promise<string> => {
+  try {
+    // Create a unique filename
+    const timestamp = Date.now();
+    const fileExtension = file.name.split('.').pop();
+    const fileName = `invoice-templates/${templateId}/logo_${timestamp}.${fileExtension}`;
+    
+    // Create storage reference
+    const storageRef = ref(storage, fileName);
+    
+    // Upload file
+    const snapshot = await uploadBytes(storageRef, file);
+    
+    // Get download URL
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    
+    console.log('✅ Logo uploaded successfully:', downloadURL);
+    return downloadURL;
+  } catch (error: any) {
+    console.error('❌ Error uploading logo:', error);
+    throw new Error('Logo上傳失敗。請重試。');
+  }
+};
+
+// Save invoice template to Firestore
+export const saveInvoiceTemplate = async (template: InvoiceTemplate): Promise<void> => {
+  try {
+    const templateRef = doc(db, 'invoiceTemplates', template.id);
+    await setDoc(templateRef, {
+      ...template,
+      updatedAt: new Date().toISOString()
+    });
+    
+    console.log('✅ Invoice template saved successfully:', template.id);
+  } catch (error: any) {
+    console.error('❌ Error saving invoice template:', error);
+    throw new Error('模板保存失敗。請重試。');
+  }
+};
+
+// Get invoice template from Firestore
+export const getInvoiceTemplate = async (templateId: string): Promise<InvoiceTemplate | null> => {
+  try {
+    const templateRef = doc(db, 'invoiceTemplates', templateId);
+    const templateSnap = await getDoc(templateRef);
+    
+    if (templateSnap.exists()) {
+      return templateSnap.data() as InvoiceTemplate;
+    } else {
+      console.log('No template found with ID:', templateId);
+      return null;
+    }
+  } catch (error: any) {
+    console.error('❌ Error getting invoice template:', error);
+    throw new Error('獲取模板失敗。請重試。');
+  }
+};
+
+// Get all invoice templates from Firestore
+export const getAllInvoiceTemplates = async (): Promise<InvoiceTemplate[]> => {
+  try {
+    const templatesRef = collection(db, 'invoiceTemplates');
+    const templatesSnap = await getDocs(templatesRef);
+    
+    const templates: InvoiceTemplate[] = [];
+    templatesSnap.forEach((doc) => {
+      templates.push(doc.data() as InvoiceTemplate);
+    });
+    
+    // Sort by creation date (newest first)
+    templates.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    
+    console.log('✅ Retrieved invoice templates:', templates.length);
+    return templates;
+  } catch (error: any) {
+    console.error('❌ Error getting invoice templates:', error);
+    throw new Error('獲取模板列表失敗。請重試。');
   }
 }; 

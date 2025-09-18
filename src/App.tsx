@@ -41,6 +41,7 @@ import AdminOffersPage from './components/AdminOffersPage';
 import AdminEditOfferPage from './components/AdminEditOfferPage';
 import AdminTransactionsPage from './components/AdminTransactionsPage';
 import AdminMessagesPage from './components/AdminMessagesPage';
+import AdminInvoicePage from './components/AdminInvoicePage';
 import LandingPage from './components/LandingPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import UserProfilePage from './components/UserProfilePage';
@@ -405,10 +406,26 @@ function AuthenticatedRedirect() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Check if user is admin via localStorage first
+    const isAdminAuthenticated = localStorage.getItem('adminAuthenticated');
+    if (isAdminAuthenticated) {
+      console.log('🔄 AuthenticatedRedirect: Admin session detected in localStorage, redirecting to admin dashboard');
+      navigate('/hk/admin/dashboard', { replace: true });
+      return;
+    }
+
     if (!isLoading && user) {
       console.log('🔄 AuthenticatedRedirect: User loaded, checking status...');
       console.log('🔄 AuthenticatedRedirect: User emailVerified:', user.emailVerified);
       console.log('🔄 AuthenticatedRedirect: User status:', user.status);
+      console.log('🔄 AuthenticatedRedirect: User isAdmin:', user.isAdmin);
+      
+      // Check if user is admin - admins should go to admin dashboard
+      if (user.isAdmin) {
+        console.log('🔄 AuthenticatedRedirect: Admin user detected, redirecting to admin dashboard');
+        navigate('/hk/admin/dashboard', { replace: true });
+        return;
+      }
       
       // Check if user just completed email verification
       const firebaseUser = auth.currentUser;
@@ -660,6 +677,7 @@ function AppContent() {
         <Route path="/hk/admin/offers/edit/:offerId" element={<AdminEditOfferPage />} />
         <Route path="/hk/admin/transactions" element={<AdminTransactionsPage />} />
         <Route path="/hk/admin/messages" element={<AdminMessagesPage />} />
+        <Route path="/hk/admin/invoices" element={<AdminInvoicePage />} />
         
 
         

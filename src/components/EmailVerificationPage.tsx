@@ -30,6 +30,13 @@ export default function EmailVerificationPage() {
     // Check if user is already verified (either in Firestore or Firebase Auth)
     const checkVerificationStatus = async () => {
       if (user) {
+        // Check if user is admin - admins should bypass email verification
+        if (user.isAdmin) {
+          console.log('Admin user detected, bypassing email verification and redirecting to admin dashboard');
+          navigate('/hk/admin/dashboard');
+          return;
+        }
+        
         // Check Firebase Auth status as well
         const firebaseUser = auth.currentUser;
         if (firebaseUser && firebaseUser.emailVerified) {

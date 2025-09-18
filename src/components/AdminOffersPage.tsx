@@ -26,7 +26,8 @@ import {
   Upload,
   RefreshCw,
   Building,
-  Camera
+  Camera,
+  FileText
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import SellerRatingDisplay from './SellerRatingDisplay';
@@ -809,6 +810,17 @@ export default function AdminOffersPage() {
                 >
                   <MessageCircle className="h-5 w-5 group-hover:text-blue-600" />
                   <span>Messages</span>
+                </button>
+                
+                <button
+                  onClick={() => {
+                    navigate('/hk/admin/invoices');
+                    setSidebarOpen(false);
+                  }}
+                  className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-medium text-gray-700 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-200 group"
+                >
+                  <FileText className="h-5 w-5 group-hover:text-blue-600" />
+                  <span>Invoice Management</span>
                 </button>
               </div>
             </div>

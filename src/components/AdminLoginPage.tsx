@@ -42,6 +42,10 @@ export default function AdminLoginPage() {
         lastLogin: new Date().toISOString()
       }));
       
+      // Clear any existing user session to prevent AuthContext conflicts
+      localStorage.removeItem('user');
+      
+      // Navigate to admin dashboard
       navigate('/hk/admin/dashboard');
     } catch (error: any) {
       setError(error.message || '登入失敗。請重試。');
@@ -50,15 +54,20 @@ export default function AdminLoginPage() {
     }
   };
 
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 flex items-center justify-center p-4">
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
-          <div className="mx-auto h-16 w-16 bg-white rounded-full flex items-center justify-center shadow-lg">
-            <Shield className="h-8 w-8 text-blue-600" />
+          <div className="mx-auto mb-6">
+            <img 
+              src="/ClearlotLogov2.png" 
+              alt="ClearLot" 
+              className="h-16 w-auto mx-auto"
+            />
           </div>
-          <h2 className="mt-6 text-3xl font-bold text-white">
+          <h2 className="text-3xl font-bold text-white">
             管理員登入
           </h2>
           <p className="mt-2 text-sm text-blue-100">
@@ -142,6 +151,7 @@ export default function AdminLoginPage() {
                 '登入'
               )}
             </button>
+
           </form>
 
           {/* Admin Info */}
@@ -151,15 +161,6 @@ export default function AdminLoginPage() {
               <p>• 只有擁有管理員權限的用戶才能登入</p>
               <p>• 請使用您的註冊電子郵件和密碼</p>
               <p>• 如需管理員權限，請聯繫系統管理員</p>
-            </div>
-          </div>
-
-          {/* Admin Credentials */}
-          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-700 mb-2">預設管理員帳號:</h4>
-            <div className="text-xs text-gray-600 space-y-1">
-              <p><strong>電子郵件:</strong> admin@clearlot.com</p>
-              <p><strong>密碼:</strong> 123456</p>
             </div>
           </div>
         </div>

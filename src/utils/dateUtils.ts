@@ -21,7 +21,16 @@ export const convertToHKTime = (dateString: string): Date => {
 /**
  * Format date for Hong Kong locale (Traditional Chinese)
  */
-export const formatHKDate = (date: Date, options?: Intl.DateTimeFormatOptions): string => {
+export const formatHKDate = (date: Date | string, options?: Intl.DateTimeFormatOptions): string => {
+  // Convert string to Date if needed
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  
+  // Check if the date is valid
+  if (isNaN(dateObj.getTime())) {
+    console.warn('Invalid date provided to formatHKDate:', date);
+    return 'Invalid Date';
+  }
+  
   const defaultOptions: Intl.DateTimeFormatOptions = {
     year: 'numeric',
     month: 'long',
@@ -30,15 +39,7 @@ export const formatHKDate = (date: Date, options?: Intl.DateTimeFormatOptions): 
     ...options
   };
   
-  const formatted = date.toLocaleDateString('zh-HK', defaultOptions);
-  
-  // 調試信息
-  console.log('formatHKDate 調試:', {
-    originalDate: date.toISOString(),
-    timeZone: HK_TIMEZONE,
-    formatted: formatted,
-    options: defaultOptions
-  });
+  const formatted = dateObj.toLocaleDateString('zh-HK', defaultOptions);
   
   return formatted;
 };
@@ -46,7 +47,15 @@ export const formatHKDate = (date: Date, options?: Intl.DateTimeFormatOptions): 
 /**
  * Format time for Hong Kong locale (Traditional Chinese)
  */
-export const formatHKTime = (date: Date, options?: Intl.DateTimeFormatOptions): string => {
+export const formatHKTime = (date: Date | string, options?: Intl.DateTimeFormatOptions): string => {
+  // Convert string to Date if needed
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  
+  // Check if the date is valid
+  if (isNaN(dateObj.getTime())) {
+    console.warn('Invalid date provided to formatHKTime:', date);
+    return 'Invalid Time';
+  }
   const defaultOptions: Intl.DateTimeFormatOptions = {
     hour: '2-digit',
     minute: '2-digit',

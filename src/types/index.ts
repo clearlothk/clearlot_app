@@ -208,6 +208,7 @@ export interface Purchase {
   status: 'pending' | 'approved' | 'rejected' | 'shipped' | 'delivered' | 'completed';
   purchaseDate: string;
   paymentMethod: string;
+  paymentReference?: string; // Payment reference for easy admin tracking
   // Payment approval status for admin management
   paymentApprovalStatus?: 'pending' | 'approved' | 'rejected';
   // Shipping approval status for admin management
@@ -217,6 +218,7 @@ export interface Purchase {
     receiptFile?: string;
     receiptPreview?: string;
     transactionId?: string;
+    paymentReference?: string;
     amount: number;
     status: 'pending' | 'processing' | 'completed' | 'failed';
     timestamp: string;

@@ -376,7 +376,7 @@ export default function AdminDashboard() {
             id: purchase.id,
             type: 'transaction' as const,
             title: `🛒 New Purchase`,
-            description: `${sellerName} → ${buyerName} (HK$${purchase.totalAmount?.toLocaleString() || '0'}) (ID: ${purchase.id})`,
+            description: `${sellerName} → ${buyerName} (HK$${purchase.totalAmount?.toLocaleString() || '0'}) ${purchase.paymentReference ? `[Ref: ${purchase.paymentReference}]` : ''} (ID: ${purchase.id})`,
             timestamp: purchase.purchaseDate || purchase.timestamp,
             status: purchase.status,
             purchaseData: {
@@ -418,8 +418,8 @@ export default function AdminDashboard() {
             type: 'transaction' as const,
             title: isReupload ? `📄 Payment Receipt Re-uploaded` : `📄 Payment Receipt Uploaded`,
             description: isReupload 
-              ? `Receipt re-uploaded for HK$${purchase.totalAmount || 0} purchase`
-              : `Receipt uploaded for HK$${purchase.totalAmount || 0} purchase`,
+              ? `Receipt re-uploaded for HK$${purchase.totalAmount || 0} purchase ${purchase.paymentReference ? `[Ref: ${purchase.paymentReference}]` : ''}`
+              : `Receipt uploaded for HK$${purchase.totalAmount || 0} purchase ${purchase.paymentReference ? `[Ref: ${purchase.paymentReference}]` : ''}`,
             timestamp: purchase.paymentDetails?.timestamp || purchase.updatedAt || purchase.purchaseDate || purchase.timestamp,
             status: 'pending_review',
             purchaseData: purchase // Include full purchase data for modal
@@ -1031,6 +1031,17 @@ export default function AdminDashboard() {
                   <MessageCircle className="h-5 w-5 group-hover:text-blue-600" />
                   <span>Messages</span>
                 </button>
+                
+                <button
+                  onClick={() => {
+                    navigate('/hk/admin/invoices');
+                    setSidebarOpen(false);
+                  }}
+                  className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-medium text-gray-700 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-200 group"
+                >
+                  <FileText className="h-5 w-5 group-hover:text-blue-600" />
+                  <span>Invoice Management</span>
+                </button>
               </div>
             </div>
 
@@ -1494,6 +1505,12 @@ export default function AdminDashboard() {
                         <span className="text-sm text-gray-600">Purchase ID:</span>
                         <span className="text-sm font-medium">{selectedPurchase.id}</span>
                       </div>
+                      {selectedPurchase.paymentReference && (
+                        <div className="flex justify-between">
+                          <span className="text-sm text-gray-600">Payment Reference:</span>
+                          <span className="text-sm font-medium text-blue-600 font-mono">{selectedPurchase.paymentReference}</span>
+                        </div>
+                      )}
                       <div className="flex justify-between">
                         <span className="text-sm text-gray-600">Total Amount:</span>
                         <span className="text-sm font-medium">HK${selectedPurchase.totalAmount?.toLocaleString()}</span>

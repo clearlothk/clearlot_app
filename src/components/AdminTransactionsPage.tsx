@@ -30,7 +30,8 @@ import {
   Send,
   Building,
   Camera,
-  ChevronLeft
+  ChevronLeft,
+  FileDown
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -49,6 +50,8 @@ import { Purchase, Offer, AuthUser } from '../types';
 import OrderProgressTracker from './OrderProgressTracker';
 import { formatPhoneForDisplay } from '../utils/phoneUtils';
 import { convertToHKTime, formatHKDate, formatHKTime } from '../utils/dateUtils';
+import { PDFService } from '../services/pdfService';
+import { ExcelInvoiceService } from '../services/excelInvoiceService';
 
 
 
@@ -69,6 +72,8 @@ export default function AdminTransactionsPage() {
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [showShippingPhotoModal, setShowShippingPhotoModal] = useState(false);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState<number>(0);
+  const [showImageZoomModal, setShowImageZoomModal] = useState(false);
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string>('');
 
   const [showLogisticsModal, setShowLogisticsModal] = useState(false);
   const [showShippingModal, setShowShippingModal] = useState(false);
@@ -287,6 +292,28 @@ export default function AdminTransactionsPage() {
   }) => {
     setSelectedTransaction(transaction);
     setShowReceiptModal(true);
+  };
+
+  const handleGenerateInvoice = async (transaction: Purchase & {
+    offer?: Offer | null;
+    buyer?: AuthUser | null;
+    seller?: AuthUser | null;
+    approvalStatus?: 'pending' | 'approved' | 'rejected';
+  }) => {
+    try {
+      const invoiceData = {
+        purchase: transaction,
+        offer: transaction.offer,
+        buyer: transaction.buyer,
+        seller: transaction.seller
+      };
+      
+      // Use Excel service for better formatting and Chinese character support
+      await ExcelInvoiceService.downloadInvoiceExcel(invoiceData);
+    } catch (error) {
+      console.error('Error generating invoice:', error);
+      setError('Failed to generate invoice. Please try again.');
+    }
   };
 
   const handleApproveTransaction = async (purchaseId: string) => {
@@ -606,6 +633,17 @@ export default function AdminTransactionsPage() {
                   <MessageCircle className="h-5 w-5 group-hover:text-blue-600" />
                   <span>Messages</span>
                 </button>
+                
+                <button
+                  onClick={() => {
+                    navigate('/hk/admin/invoices');
+                    setSidebarOpen(false);
+                  }}
+                  className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-medium text-gray-700 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-200 group"
+                >
+                  <FileText className="h-5 w-5 group-hover:text-blue-600" />
+                  <span>Invoice Management</span>
+                </button>
               </div>
             </div>
 
@@ -845,6 +883,11 @@ export default function AdminTransactionsPage() {
                         <div className="text-sm font-mono text-gray-600 bg-gray-50 px-2 py-1 rounded border">
                           {transaction.id}
                         </div>
+                        {transaction.paymentReference && (
+                          <div className="text-xs text-blue-600 font-mono bg-blue-50 px-2 py-1 rounded border mt-1">
+                            Ref: {transaction.paymentReference}
+                          </div>
+                        )}
                         <div className="text-xs text-gray-400 mt-1">
                           {transaction.paymentDetails?.transactionId || 'N/A'}
                         </div>
@@ -926,14 +969,44 @@ export default function AdminTransactionsPage() {
                           <button 
                             className="text-blue-600 hover:text-blue-900"
                             onClick={() => handleViewReceipt(transaction)}
+                            title="View Receipt"
                           >
                             <Eye className="h-4 w-4" />
                           </button>
-                          {transaction.paymentDetails?.receiptPreview && (
-                            <button className="text-green-600 hover:text-green-900">
-                              <Download className="h-4 w-4" />
-                            </button>
-                          )}
+                          <button 
+                            className="text-blue-600 hover:text-blue-900"
+                            onClick={async () => {
+                              try {
+                                // Load the default template to ensure consistency with Generated Invoices
+                                const { getAllInvoiceTemplates } = await import('../services/firebaseService');
+                                const templates = await getAllInvoiceTemplates();
+                                const defaultTemplate = templates.find(t => t.isDefault) || templates[0];
+                                
+                                const invoiceData = {
+                                  purchase: transaction,
+                                  offer: transaction.offer,
+                                  buyer: transaction.buyer,
+                                  seller: transaction.seller,
+                                  template: defaultTemplate
+                                };
+                                
+                                await ExcelInvoiceService.convertExcelToPDF(invoiceData);
+                              } catch (error) {
+                                console.error('Error generating PDF:', error);
+                                // Fallback without template
+                                const invoiceData = {
+                                  purchase: transaction,
+                                  offer: transaction.offer,
+                                  buyer: transaction.buyer,
+                                  seller: transaction.seller
+                                };
+                                await ExcelInvoiceService.convertExcelToPDF(invoiceData);
+                              }
+                            }}
+                            title="Generate Invoice PDF"
+                          >
+                            <FileText className="h-4 w-4" />
+                          </button>
 
                           {transaction.status === 'approved' && (
                             <button 
@@ -983,6 +1056,13 @@ export default function AdminTransactionsPage() {
                               <CheckCircle className="h-4 w-4" />
                             </button>
                           )}
+                          <button 
+                            className="text-blue-600 hover:text-blue-900"
+                            onClick={() => handleGenerateInvoice(transaction)}
+                            title="Generate Invoice PDF"
+                          >
+                            <FileDown className="h-4 w-4" />
+                          </button>
                           <button className="text-gray-600 hover:text-gray-900">
                             <MoreVertical className="h-4 w-4" />
                           </button>
@@ -1037,6 +1117,9 @@ export default function AdminTransactionsPage() {
                     {selectedTransaction.offer?.title || `Offer ID: ${selectedTransaction.offerId}`}
                   </h4>
                   <p className="text-sm text-gray-500">Purchase ID: {selectedTransaction.id}</p>
+                  {selectedTransaction.paymentReference && (
+                    <p className="text-sm text-blue-600 font-mono">Payment Reference: {selectedTransaction.paymentReference}</p>
+                  )}
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4 text-sm">
@@ -1183,7 +1266,11 @@ export default function AdminTransactionsPage() {
                         <img
                           src={selectedTransaction.paymentDetails.receiptPreview}
                           alt="Payment Receipt"
-                          className="max-w-full h-80 object-contain rounded-lg border border-gray-200"
+                          className="max-w-full h-80 object-contain rounded-lg border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity duration-200"
+                          onClick={() => {
+                            setSelectedImageUrl(selectedTransaction.paymentDetails.receiptPreview);
+                            setShowImageZoomModal(true);
+                          }}
                           onError={(e) => {
                             console.log('Image failed to load:', selectedTransaction.paymentDetails?.receiptPreview);
                             const target = e.target as HTMLImageElement;
@@ -1207,6 +1294,7 @@ export default function AdminTransactionsPage() {
                     )}
                   </div>
                 )}
+                
               </div>
             </div>
           </div>
@@ -1236,6 +1324,9 @@ export default function AdminTransactionsPage() {
                     {selectedTransaction.offer?.title || `Offer ID: ${selectedTransaction.offerId}`}
                   </h4>
                   <p className="text-sm text-gray-500">Purchase ID: {selectedTransaction.id}</p>
+                  {selectedTransaction.paymentReference && (
+                    <p className="text-sm text-blue-600 font-mono">Payment Reference: {selectedTransaction.paymentReference}</p>
+                  )}
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4 text-sm">
@@ -1871,6 +1962,11 @@ export default function AdminTransactionsPage() {
                       <p className="text-gray-600">
                         <span className="font-medium">Purchase ID:</span> {selectedTransaction.id}
                       </p>
+                      {selectedTransaction.paymentReference && (
+                        <p className="text-gray-600">
+                          <span className="font-medium">Payment Reference:</span> <span className="text-blue-600 font-mono">{selectedTransaction.paymentReference}</span>
+                        </p>
+                      )}
                       <p className="text-gray-600">
                         <span className="font-medium">Product:</span> {selectedTransaction.offer?.title || 'N/A'}
                       </p>
@@ -1887,6 +1983,55 @@ export default function AdminTransactionsPage() {
                         })()}
                       </p>
                     </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Image Zoom Modal */}
+      {showImageZoomModal && selectedImageUrl && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div className="fixed inset-0 bg-black bg-opacity-75 transition-opacity" onClick={() => setShowImageZoomModal(false)}></div>
+            
+            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-medium text-gray-900">Payment Receipt</h3>
+                  <button
+                    onClick={() => setShowImageZoomModal(false)}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <X className="h-6 w-6" />
+                  </button>
+                </div>
+                
+                <div className="flex justify-center">
+                  <img
+                    src={selectedImageUrl}
+                    alt="Payment Receipt - Full View"
+                    className="max-w-full max-h-96 object-contain rounded-lg border border-gray-200"
+                    onError={(e) => {
+                      console.log('Image failed to load in zoom modal:', selectedImageUrl);
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      
+                      // Show fallback content
+                      const fallback = target.nextElementSibling as HTMLElement;
+                      if (fallback) {
+                        fallback.style.display = 'flex';
+                      }
+                    }}
+                  />
+                  
+                  {/* Fallback for image failure */}
+                  <div className="max-w-full max-h-96 flex flex-col items-center justify-center text-center p-6 bg-gray-50 rounded-lg border border-gray-200" style={{ display: 'none' }}>
+                    <FileText className="h-12 w-12 text-gray-400 mb-4" />
+                    <h4 className="text-sm font-medium text-gray-900 mb-2">圖片無法載入</h4>
+                    <p className="text-xs text-gray-500">請檢查收據文件是否正確</p>
                   </div>
                 </div>
               </div>

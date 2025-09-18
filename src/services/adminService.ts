@@ -1,6 +1,7 @@
 import { 
   signInWithEmailAndPassword, 
-  signOut as firebaseSignOut 
+  signOut as firebaseSignOut,
+  createUserWithEmailAndPassword
 } from 'firebase/auth';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '../config/firebase';
@@ -32,9 +33,20 @@ export const adminLogin = async (credentials: AdminLoginCredentials): Promise<Au
       throw new Error('您沒有管理員權限');
     }
 
+    // For admin users, automatically mark email as verified and update last login
+    await updateDoc(doc(db, 'users', userCredential.user.uid), {
+      emailVerified: true,
+      status: 'active',
+      lastLogin: new Date().toISOString()
+    });
+
+    console.log('✅ Admin login successful, email verification bypassed for admin user');
+
     return {
       id: userCredential.user.uid,
-      ...userData
+      ...userData,
+      emailVerified: true, // Ensure admin is marked as verified
+      status: 'active'
     };
   } catch (error: any) {
     console.error('Admin login error:', error);
@@ -117,5 +129,73 @@ export const getClearLotAdminId = async (): Promise<string | null> => {
   } catch (error) {
     console.error('Error getting ClearLot admin ID:', error);
     return null;
+  }
+};
+
+// Create official admin account
+export const createOfficialAdmin = async (): Promise<void> => {
+  try {
+    const OFFICIAL_ADMIN_EMAIL = 'support@clearlot.app';
+    const OFFICIAL_ADMIN_PASSWORD = 'cl777888';
+    
+    console.log('🚀 开始创建官方管理员账户...');
+    
+    // Check if account already exists
+    try {
+      await signInWithEmailAndPassword(auth, OFFICIAL_ADMIN_EMAIL, OFFICIAL_ADMIN_PASSWORD);
+      console.log('✅ 官方管理员账户已存在');
+      return;
+    } catch (error: any) {
+      if (error.code === 'auth/user-not-found') {
+        console.log('📝 创建新的官方管理员账户...');
+      } else {
+        throw error;
+      }
+    }
+    
+    // Create new user
+    const userCredential = await createUserWithEmailAndPassword(
+      auth, 
+      OFFICIAL_ADMIN_EMAIL, 
+      OFFICIAL_ADMIN_PASSWORD
+    );
+    
+    const user = userCredential.user;
+    console.log('✅ 用户创建成功:', user.uid);
+    
+    // Create user document in Firestore
+    const userData = {
+      id: user.uid,
+      email: OFFICIAL_ADMIN_EMAIL,
+      name: 'ClearLot Support',
+      company: 'ClearLot Platform',
+      phone: '+852-XXXX-XXXX',
+      location: 'Hong Kong',
+      isAdmin: true,
+      isVerified: true,
+      createdAt: new Date().toISOString(),
+      lastLogin: new Date().toISOString(),
+      role: 'super_admin',
+      permissions: [
+        'user_management',
+        'offer_management', 
+        'transaction_management',
+        'invoice_management',
+        'message_management',
+        'system_settings'
+      ]
+    };
+    
+    await setDoc(doc(db, 'users', user.uid), userData);
+    console.log('✅ 用户文档创建成功');
+    
+    console.log('🎉 官方管理员账户创建完成!');
+    console.log('📧 邮箱:', OFFICIAL_ADMIN_EMAIL);
+    console.log('🔑 密码:', OFFICIAL_ADMIN_PASSWORD);
+    console.log('🆔 用户ID:', user.uid);
+    
+  } catch (error: any) {
+    console.error('❌ 创建官方管理员账户失败:', error);
+    throw new Error('创建官方管理员账户失败: ' + error.message);
   }
 }; 

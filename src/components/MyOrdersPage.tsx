@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import { getOfferById, getUserById } from '../services/firebaseService';
 import { Purchase, Offer } from '../types';
 import { formatDateForDisplay, getShortDate, getShortTime, convertToHKTime, formatHKDate, formatHKTime } from '../utils/dateUtils';
 import { 
@@ -23,7 +24,8 @@ import {
   Truck,
   ArrowRight,
   Lock,
-  AlertCircle
+  AlertCircle,
+  FileDown
 } from 'lucide-react';
 import { canAccessMyOrders, getRestrictionMessage } from '../utils/userUtils';
 import ShippingPhotoModal from './ShippingPhotoModal';
@@ -34,6 +36,8 @@ import ShippingStatusModal from './ShippingStatusModal';
 import ClearlotPaymentModal from './ClearlotPaymentModal';
 import OrderRatingModal from './OrderRatingModal';
 import SellerRatingModal from './SellerRatingModal';
+import { PDFService } from '../services/pdfService';
+import { ExcelInvoiceService } from '../services/excelInvoiceService';
 
 
 interface PurchaseHistoryItem {
@@ -1267,6 +1271,30 @@ export default function HistoryPage() {
     setOrderDetailsModalOpen(true);
   };
 
+  const handleGenerateInvoice = async (transaction: any) => {
+    try {
+      // Fetch additional data needed for invoice
+      const [offer, buyer, seller] = await Promise.all([
+        getOfferById(transaction.offerId),
+        getUserById(transaction.buyerId || user?.id),
+        getUserById(transaction.sellerId)
+      ]);
+
+      const invoiceData = {
+        purchase: transaction,
+        offer,
+        buyer,
+        seller
+      };
+      
+      // Use Excel service for better formatting and Chinese character support
+      await ExcelInvoiceService.downloadInvoiceExcel(invoiceData);
+    } catch (error) {
+      console.error('Error generating invoice:', error);
+      // You could add a toast notification here if you have one
+    }
+  };
+
   const handleOrderDetailsClose = () => {
     setOrderDetailsModalOpen(false);
     // Refresh data when modal closes in case delivery details were updated
@@ -1944,6 +1972,16 @@ export default function HistoryPage() {
                             <Eye className="h-4 w-4" />
                             <span className="text-sm">查看詳情</span>
                           </button>
+                          {activeTab === 'orders' && transaction.status === 'completed' && (
+                            <button 
+                              onClick={() => handleGenerateInvoice(transaction)}
+                              className="flex items-center space-x-1 text-green-600 hover:text-green-700 font-medium bg-green-50 hover:bg-green-100 px-3 py-2 rounded-lg transition-colors duration-200"
+                              title="生成發票 PDF"
+                            >
+                              <FileDown className="h-4 w-4" />
+                              <span className="text-sm">發票</span>
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -1997,6 +2035,16 @@ export default function HistoryPage() {
                             <Eye className="h-4 w-4" />
                             <span>查看詳情</span>
                           </button>
+                          {activeTab === 'orders' && transaction.status === 'completed' && (
+                            <button 
+                              onClick={() => handleGenerateInvoice(transaction)}
+                              className="flex items-center space-x-1 text-green-600 hover:text-green-700 font-medium"
+                              title="生成發票 PDF"
+                            >
+                              <FileDown className="h-4 w-4" />
+                              <span>發票</span>
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
