@@ -5,7 +5,8 @@ import { RegisterData } from '../types';
 import { LOCATIONS } from '../constants/categories';
 import { getPhoneErrorMessage, filterPhoneInput } from '../utils/phoneUtils';
 import { TrendingUp, Mail, Lock, Eye, EyeOff, AlertCircle, Loader, Building, Phone, MapPin, Check, ArrowLeft } from 'lucide-react';
-import TermsModal from './TermsModal';
+import TermsOfServiceModal from './TermsOfServiceModal';
+import PrivacyPolicyModal from './PrivacyPolicyModal';
 import { FORM_STYLES, getInputClassName } from '../utils/formStyles';
 
 interface RegisterPageProps {
@@ -31,6 +32,7 @@ export default function RegisterPage({ onNavigateToLogin, onRegisterSuccess }: R
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -116,10 +118,11 @@ export default function RegisterPage({ onNavigateToLogin, onRegisterSuccess }: R
         {/* Logo and Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-6">
-            <div className="bg-blue-600 p-3 rounded-xl shadow-lg">
-              <TrendingUp className="h-8 w-8 text-white" />
-            </div>
-            <span className="ml-3 text-3xl font-bold text-gray-900">ClearLot</span>
+            <img 
+              src="/ClearlotLogov2.png" 
+              alt="ClearLot" 
+              className="h-12 w-auto"
+            />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">建立您的帳戶</h1>
           <p className="text-gray-600">加入領先的B2B清倉市場 - 輕鬆買賣</p>
@@ -298,7 +301,7 @@ export default function RegisterPage({ onNavigateToLogin, onRegisterSuccess }: R
                     {' '}和{' '}
                     <button
                       type="button"
-                      onClick={() => setShowTermsModal(true)}
+                      onClick={() => setShowPrivacyModal(true)}
                       className={FORM_STYLES.linkButton}
                     >
                       隱私政策
@@ -343,8 +346,15 @@ export default function RegisterPage({ onNavigateToLogin, onRegisterSuccess }: R
         </div>
       </div>
 
-      {/* Terms Modal */}
-      <TermsModal isOpen={showTermsModal} onClose={() => setShowTermsModal(false)} />
+      {/* Terms and Privacy Modals */}
+      <TermsOfServiceModal 
+        isOpen={showTermsModal} 
+        onClose={() => setShowTermsModal(false)} 
+      />
+      <PrivacyPolicyModal 
+        isOpen={showPrivacyModal} 
+        onClose={() => setShowPrivacyModal(false)} 
+      />
     </div>
   );
 }
