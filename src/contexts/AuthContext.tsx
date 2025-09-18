@@ -61,6 +61,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Listen for authentication state changes
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
       console.log('🔐 AuthProvider: Auth state changed:', firebaseUser ? 'User logged in' : 'No user');
+      
+      // Check if admin is authenticated - if so, don't interfere with admin session
+      const isAdminAuthenticated = localStorage.getItem('adminAuthenticated');
+      if (isAdminAuthenticated) {
+        console.log('🔐 AuthProvider: Admin session detected, skipping AuthContext user loading');
+        setIsLoading(false);
+        setIsInitialized(true);
+        return;
+      }
+      
       if (firebaseUser) {
         try {
           // Get user data from Firestore

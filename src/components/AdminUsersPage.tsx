@@ -742,7 +742,7 @@ export default function AdminUsersPage() {
 
         {/* Navigation */}
         <div className="flex flex-col h-full">
-          <nav className="flex-1 px-4 py-6 space-y-2">
+          <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
             {/* Main Navigation */}
             <div className="mb-6">
               <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 px-3">

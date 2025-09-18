@@ -107,38 +107,40 @@ export default function AdminDashboard() {
     }
 
     setAdminUser(JSON.parse(adminData));
+    setIsAuthenticated(true);
+    setIsLoading(false);
+    loadDashboardData();
 
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        const checkAdminStatus = async () => {
-          try {
-            const userDoc = await getDoc(doc(db, 'users', user.uid));
-            if (userDoc.exists()) {
-              const userData = userDoc.data();
-              if (userData.isAdmin) {
-                setIsAuthenticated(true);
-                loadDashboardData();
-              } else {
-                navigate('/hk/admin/login');
-              }
-            } else {
-              navigate('/hk/admin/login');
-            }
-          } catch (error) {
-            console.error('Error checking admin status:', error);
+    // Optional: Set up a periodic check for admin status (less frequent)
+    const checkAdminStatus = async () => {
+      try {
+        const userDoc = await getDoc(doc(db, 'users', JSON.parse(adminData).id));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          if (!userData.isAdmin) {
+            // Admin status revoked, redirect to login
+            localStorage.removeItem('adminAuthenticated');
+            localStorage.removeItem('adminUser');
             navigate('/hk/admin/login');
-          } finally {
-            setIsLoading(false);
           }
-        };
-        checkAdminStatus();
-      } else {
-        navigate('/hk/admin/login');
-        setIsLoading(false);
+        } else {
+          // User document doesn't exist, redirect to login
+          localStorage.removeItem('adminAuthenticated');
+          localStorage.removeItem('adminUser');
+          navigate('/hk/admin/login');
+        }
+      } catch (error) {
+        console.error('Error checking admin status:', error);
+        // Don't redirect on error, just log it
       }
-    });
+    };
 
-    return () => unsubscribe();
+    // Check admin status every 5 minutes
+    const statusCheckInterval = setInterval(checkAdminStatus, 5 * 60 * 1000);
+
+    return () => {
+      clearInterval(statusCheckInterval);
+    };
   }, [navigate]);
 
   const loadDashboardData = async () => {
@@ -962,7 +964,7 @@ export default function AdminDashboard() {
 
         {/* Navigation */}
         <div className="flex flex-col h-full">
-          <nav className="flex-1 px-4 py-6 space-y-2">
+          <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
             {/* Main Navigation */}
             <div className="mb-6">
               <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 px-3">

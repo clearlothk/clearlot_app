@@ -414,6 +414,11 @@ function AuthenticatedRedirect() {
       return;
     }
 
+    // If admin is authenticated, don't process regular user logic
+    if (isAdminAuthenticated) {
+      return;
+    }
+
     if (!isLoading && user) {
       console.log('🔄 AuthenticatedRedirect: User loaded, checking status...');
       console.log('🔄 AuthenticatedRedirect: User emailVerified:', user.emailVerified);

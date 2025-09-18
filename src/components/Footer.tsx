@@ -1,7 +1,15 @@
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { TrendingUp, Mail, MapPin, Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
+import CookiePolicyModal from './CookiePolicyModal';
+import PrivacyPolicyModal from './PrivacyPolicyModal';
+import TermsOfServiceModal from './TermsOfServiceModal';
 
 export default function Footer() {
+  const [showCookieModal, setShowCookieModal] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
+
   return (
     <footer className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -82,13 +90,42 @@ export default function Footer() {
               © 2025 ClearLot. 版權所有。
             </div>
             <div className="flex space-x-6 text-sm">
-              <a href="#" className="text-gray-400 hover:text-white transition-colors duration-200">私隱政策</a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors duration-200">服務條款</a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors duration-200">Cookie政策</a>
+              <button 
+                onClick={() => setShowPrivacyModal(true)}
+                className="text-gray-400 hover:text-white transition-colors duration-200"
+              >
+                私隱政策
+              </button>
+              <button 
+                onClick={() => setShowTermsModal(true)}
+                className="text-gray-400 hover:text-white transition-colors duration-200"
+              >
+                服務條款
+              </button>
+              <button 
+                onClick={() => setShowCookieModal(true)}
+                className="text-gray-400 hover:text-white transition-colors duration-200"
+              >
+                Cookie政策
+              </button>
             </div>
           </div>
         </div>
       </div>
+      
+      {/* Modals */}
+      <CookiePolicyModal 
+        isOpen={showCookieModal} 
+        onClose={() => setShowCookieModal(false)} 
+      />
+      <PrivacyPolicyModal 
+        isOpen={showPrivacyModal} 
+        onClose={() => setShowPrivacyModal(false)} 
+      />
+      <TermsOfServiceModal 
+        isOpen={showTermsModal} 
+        onClose={() => setShowTermsModal(false)} 
+      />
     </footer>
   );
 }
