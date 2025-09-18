@@ -409,13 +409,16 @@ function AuthenticatedRedirect() {
     // Check if user is admin via localStorage first
     const isAdminAuthenticated = localStorage.getItem('adminAuthenticated');
     if (isAdminAuthenticated) {
-      console.log('🔄 AuthenticatedRedirect: Admin session detected in localStorage, redirecting to admin dashboard');
-      navigate('/hk/admin/dashboard', { replace: true });
-      return;
-    }
-
-    // If admin is authenticated, don't process regular user logic
-    if (isAdminAuthenticated) {
+      console.log('🔄 AuthenticatedRedirect: Admin session detected in localStorage');
+      // Don't automatically redirect admin to dashboard - let them access the website
+      // Only redirect if they're on the root path
+      if (window.location.pathname === '/') {
+        console.log('🔄 AuthenticatedRedirect: Admin on root path, redirecting to admin dashboard');
+        navigate('/hk/admin/dashboard', { replace: true });
+        return;
+      }
+      // For other paths, let admin access the website normally
+      console.log('🔄 AuthenticatedRedirect: Admin accessing website path:', window.location.pathname);
       return;
     }
 

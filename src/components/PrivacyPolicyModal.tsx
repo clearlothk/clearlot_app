@@ -140,11 +140,8 @@ export default function PrivacyPolicyModal({ isOpen, onClose }: PrivacyPolicyMod
                 如果您對本私隱政策有任何疑問或需要行使您的權利，請聯絡我們：
               </p>
               <div className="text-sm text-gray-600 space-y-1">
-                <p><strong>資料保護主任：</strong> ClearLot 私隱團隊</p>
-                <p><strong>電子郵件：</strong> privacy@clearlot.app</p>
                 <p><strong>一般查詢：</strong> support@clearlot.app</p>
                 <p><strong>地址：</strong> Flat E10, 13/F, Block E, Tsing Yi Industrial Centre, Phase 2, Tsing Yi, NT</p>
-                <p><strong>電話：</strong> +852-XXXX-XXXX</p>
               </div>
               
               <div className="mt-6 pt-4 border-t border-gray-200">

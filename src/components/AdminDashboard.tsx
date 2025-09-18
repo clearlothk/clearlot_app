@@ -25,7 +25,6 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { collection, getDocs, getDoc, doc, updateDoc } from 'firebase/firestore';
 import { db, auth } from '../config/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
 import { formatHKDate, formatHKDateTime, formatHKTime } from '../utils/dateUtils';
 import VerificationReasonModal from './VerificationReasonModal';
 import ActivityDetailsModal from './ActivityDetailsModal';
@@ -948,7 +947,7 @@ export default function AdminDashboard() {
       {/* Sidebar */}
       <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      }`}>
+      }`} style={{ height: '100vh' }}>
         {/* Sidebar Header */}
         <div className="flex items-center justify-between h-16 px-6 border-b border-gray-100 bg-gradient-to-r from-blue-600 to-blue-700">
           <div className="flex items-center space-x-3">
@@ -963,8 +962,8 @@ export default function AdminDashboard() {
         </div>
 
         {/* Navigation */}
-        <div className="flex flex-col h-full">
-          <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+        <div className="flex flex-col h-full" style={{ height: 'calc(100vh - 64px)' }}>
+          <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
             {/* Main Navigation */}
             <div className="mb-6">
               <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 px-3">
@@ -1054,6 +1053,16 @@ export default function AdminDashboard() {
               </h3>
               <div className="space-y-1">
                 <button
+                  onClick={() => {
+                    navigate('/');
+                    setSidebarOpen(false);
+                  }}
+                  className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-medium text-gray-700 hover:text-green-700 hover:bg-green-50 rounded-lg transition-all duration-200 group"
+                >
+                  <Package className="h-5 w-5 group-hover:text-green-600" />
+                  <span>访问网站</span>
+                </button>
+                <button
                   disabled
                   className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-medium text-gray-400 cursor-not-allowed rounded-lg opacity-50"
                 >
@@ -1065,7 +1074,7 @@ export default function AdminDashboard() {
           </nav>
 
           {/* User Profile & Logout */}
-          <div className="border-t border-gray-100 p-4">
+          <div className="border-t border-gray-100 p-4 flex-shrink-0" style={{ minHeight: '120px' }}>
             <div className="flex items-center space-x-3 mb-3">
               <div className="h-8 w-8 bg-blue-600 rounded-full flex items-center justify-center">
                 <span className="text-sm font-bold text-white">A</span>

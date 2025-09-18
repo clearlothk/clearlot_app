@@ -66,6 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const isAdminAuthenticated = localStorage.getItem('adminAuthenticated');
       if (isAdminAuthenticated) {
         console.log('🔐 AuthProvider: Admin session detected, skipping AuthContext user loading');
+        // Don't set user to null, just skip loading
         setIsLoading(false);
         setIsInitialized(true);
         return;
