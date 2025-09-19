@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { TrendingUp, Mail, MapPin, Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
+import { TrendingUp, Mail, MapPin } from 'lucide-react';
 import CookiePolicyModal from './CookiePolicyModal';
 import PrivacyPolicyModal from './PrivacyPolicyModal';
 import TermsOfServiceModal from './TermsOfServiceModal';
@@ -23,24 +23,15 @@ export default function Footer() {
                 className="h-8 w-auto"
               />
             </div>
+            <div className="mb-6">
+              <p className="text-lg font-bold text-yellow-400 tracking-wide">
+                出貨有門道，清倉更輕鬆
+              </p>
+            </div>
             <p className="text-gray-300 mb-6 leading-relaxed">
               專業的B2B清倉交易平台。
               連接優質供應商與企業買家，創造雙贏的商業機會。
             </p>
-            <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors duration-200">
-                <Facebook className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors duration-200">
-                <Twitter className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors duration-200">
-                <Linkedin className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors duration-200">
-                <Instagram className="h-5 w-5" />
-              </a>
-            </div>
           </div>
 
           {/* Quick Links */}

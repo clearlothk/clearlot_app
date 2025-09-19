@@ -751,36 +751,37 @@ export default function CompanySettingsPage() {
               </div>
 
               {/* Tab Content */}
-              <div className="p-8">
+              <div className="p-4 sm:p-6 lg:p-8">
                 {/* Company Information Tab */}
                 {activeTab === 'company' && (
-                  <div className="space-y-8">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h2 className="text-2xl font-bold text-gray-900 mb-2">公司信息</h2>
-                        <p className="text-gray-600">管理您的公司詳細信息和業務信息</p>
+                  <div className="space-y-6 sm:space-y-8">
+                    {/* Header Section - Mobile Optimized */}
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+                      <div className="flex-1">
+                        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">公司信息</h2>
+                        <p className="text-sm sm:text-base text-gray-600">管理您的公司詳細信息和業務信息</p>
                       </div>
                       {!isEditing ? (
                         <button
                           onClick={() => setIsEditing(true)}
-                          className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium"
+                          className="w-full sm:w-auto flex items-center justify-center space-x-2 bg-blue-600 text-white px-4 py-3 rounded-xl hover:bg-blue-700 transition-colors duration-200 font-medium shadow-sm"
                         >
                           <Edit3 className="h-4 w-4" />
                           <span>編輯</span>
                         </button>
                       ) : (
-                        <div className="flex space-x-2">
+                        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
                           <button
                             onClick={handleSave}
                             disabled={isUploading}
-                            className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors duration-200 font-medium disabled:opacity-50"
+                            className="flex items-center justify-center space-x-2 bg-green-600 text-white px-4 py-3 rounded-xl hover:bg-green-700 transition-colors duration-200 font-medium disabled:opacity-50 shadow-sm"
                           >
                             <Save className="h-4 w-4" />
                             <span>{isUploading ? '保存中...' : '保存'}</span>
                           </button>
                           <button
                             onClick={() => setIsEditing(false)}
-                            className="flex items-center space-x-2 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 font-medium"
+                            className="flex items-center justify-center space-x-2 bg-gray-600 text-white px-4 py-3 rounded-xl hover:bg-gray-700 transition-colors duration-200 font-medium shadow-sm"
                           >
                             <X className="h-4 w-4" />
                             <span>取消</span>
@@ -789,11 +790,12 @@ export default function CompanySettingsPage() {
                       )}
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Form Fields - Mobile Optimized */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                       {/* Company Name */}
-                      <div>
+                      <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-6 shadow-sm">
                         <label className="block text-sm font-bold text-gray-900 mb-3 flex items-center">
-                          <Building className="h-4 w-4 mr-2 text-blue-600" />
+                          <Building className="h-4 w-4 mr-2 text-blue-600 flex-shrink-0" />
                           公司名稱
                         </label>
                         {isEditing ? (
@@ -801,95 +803,96 @@ export default function CompanySettingsPage() {
                             type="text"
                             value={companyFormData.company}
                             onChange={(e) => setCompanyFormData(prev => ({ ...prev, company: e.target.value }))}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white transition-all duration-200"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white transition-all duration-200 text-sm sm:text-base"
+                            placeholder="請輸入公司名稱"
                           />
                         ) : (
-                          <div className="px-4 py-3 bg-gray-50 rounded-xl text-gray-900 font-medium">
+                          <div className="px-4 py-3 bg-gray-50 rounded-xl text-gray-900 font-medium text-sm sm:text-base min-h-[48px] flex items-center">
                             {user.company || '未設置'}
                           </div>
                         )}
                       </div>
 
                       {/* Business Type */}
-                      <div>
+                      <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-6 shadow-sm">
                         <label className="block text-sm font-bold text-gray-900 mb-3 flex items-center">
-                          <TrendingUp className="h-4 w-4 mr-2 text-blue-600" />
+                          <TrendingUp className="h-4 w-4 mr-2 text-blue-600 flex-shrink-0" />
                           商業類型
                         </label>
                         {isEditing ? (
-                                                     <select 
-                             value={companyFormData.businessType}
-                             onChange={(e) => setCompanyFormData(prev => ({ ...prev, businessType: e.target.value }))}
-                             className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white transition-all duration-200"
-                           >
-                             <option value="">選擇商業類型</option>
-                             <option value="有限公司">有限公司 (Limited Company)</option>
-                             <option value="無限公司">無限公司 (Unlimited Company)</option>
-                             <option value="擔保有限公司">擔保有限公司 (Company Limited by Guarantee)</option>
-                             <option value="海外公司">海外公司 (Overseas Company)</option>
-                             <option value="獨資經營">獨資經營 (Sole Proprietorship)</option>
-                             <option value="合夥經營">合夥經營 (Partnership)</option>
-                             <option value="分支機構">分支機構 (Branch Office)</option>
-                             <option value="代表辦事處">代表辦事處 (Representative Office)</option>
-                           </select>
+                          <select 
+                            value={companyFormData.businessType}
+                            onChange={(e) => setCompanyFormData(prev => ({ ...prev, businessType: e.target.value }))}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white transition-all duration-200 text-sm sm:text-base"
+                          >
+                            <option value="">選擇商業類型</option>
+                            <option value="有限公司">有限公司 (Limited Company)</option>
+                            <option value="無限公司">無限公司 (Unlimited Company)</option>
+                            <option value="擔保有限公司">擔保有限公司 (Company Limited by Guarantee)</option>
+                            <option value="海外公司">海外公司 (Overseas Company)</option>
+                            <option value="獨資經營">獨資經營 (Sole Proprietorship)</option>
+                            <option value="合夥經營">合夥經營 (Partnership)</option>
+                            <option value="分支機構">分支機構 (Branch Office)</option>
+                            <option value="代表辦事處">代表辦事處 (Representative Office)</option>
+                          </select>
                         ) : (
-                          <div className="px-4 py-3 bg-gray-50 rounded-xl text-gray-900 font-medium">
+                          <div className="px-4 py-3 bg-gray-50 rounded-xl text-gray-900 font-medium text-sm sm:text-base min-h-[48px] flex items-center">
                             {user.businessType || '未設置'}
                           </div>
                         )}
                       </div>
 
                       {/* Industry */}
-                      <div>
+                      <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-6 shadow-sm">
                         <label className="block text-sm font-bold text-gray-900 mb-3 flex items-center">
-                          <Briefcase className="h-4 w-4 mr-2 text-blue-600" />
+                          <Briefcase className="h-4 w-4 mr-2 text-blue-600 flex-shrink-0" />
                           行業
                         </label>
                         {isEditing ? (
-                                                       <select 
-                             value={companyFormData.industry}
-                             onChange={(e) => setCompanyFormData(prev => ({ ...prev, industry: e.target.value }))}
-                             className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white transition-all duration-200"
-                           >
-                             <option value="">選擇行業</option>
-                             <option value="電子產品">電子產品 (Electronics)</option>
-                             <option value="電腦及配件">電腦及配件 (Computers & Accessories)</option>
-                             <option value="手機及配件">手機及配件 (Mobile Phones & Accessories)</option>
-                             <option value="家電">家電 (Home Appliances)</option>
-                             <option value="服裝及鞋類">服裝及鞋類 (Clothing & Footwear)</option>
-                             <option value="時尚配飾">時尚配飾 (Fashion Accessories)</option>
-                             <option value="珠寶首飾">珠寶首飾 (Jewelry & Watches)</option>
-                             <option value="食品及飲料">食品及飲料 (Food & Beverages)</option>
-                             <option value="家居用品">家居用品 (Home & Garden)</option>
-                             <option value="傢俱">傢俱 (Furniture)</option>
-                             <option value="化妝品及護膚">化妝品及護膚 (Cosmetics & Skincare)</option>
-                             <option value="玩具及遊戲">玩具及遊戲 (Toys & Games)</option>
-                             <option value="運動用品">運動用品 (Sports & Outdoor)</option>
-                             <option value="汽車配件">汽車配件 (Automotive Parts)</option>
-                             <option value="建築材料">建築材料 (Building Materials)</option>
-                             <option value="工業設備">工業設備 (Industrial Equipment)</option>
-                             <option value="醫療用品">醫療用品 (Medical Supplies)</option>
-                             <option value="辦公用品">辦公用品 (Office Supplies)</option>
-                             <option value="其他">其他 (Others)</option>
-                           </select>
+                          <select 
+                            value={companyFormData.industry}
+                            onChange={(e) => setCompanyFormData(prev => ({ ...prev, industry: e.target.value }))}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white transition-all duration-200 text-sm sm:text-base"
+                          >
+                            <option value="">選擇行業</option>
+                            <option value="電子產品">電子產品 (Electronics)</option>
+                            <option value="電腦及配件">電腦及配件 (Computers & Accessories)</option>
+                            <option value="手機及配件">手機及配件 (Mobile Phones & Accessories)</option>
+                            <option value="家電">家電 (Home Appliances)</option>
+                            <option value="服裝及鞋類">服裝及鞋類 (Clothing & Footwear)</option>
+                            <option value="時尚配飾">時尚配飾 (Fashion Accessories)</option>
+                            <option value="珠寶首飾">珠寶首飾 (Jewelry & Watches)</option>
+                            <option value="食品及飲料">食品及飲料 (Food & Beverages)</option>
+                            <option value="家居用品">家居用品 (Home & Garden)</option>
+                            <option value="傢俱">傢俱 (Furniture)</option>
+                            <option value="化妝品及護膚">化妝品及護膚 (Cosmetics & Skincare)</option>
+                            <option value="玩具及遊戲">玩具及遊戲 (Toys & Games)</option>
+                            <option value="運動用品">運動用品 (Sports & Outdoor)</option>
+                            <option value="汽車配件">汽車配件 (Automotive Parts)</option>
+                            <option value="建築材料">建築材料 (Building Materials)</option>
+                            <option value="工業設備">工業設備 (Industrial Equipment)</option>
+                            <option value="醫療用品">醫療用品 (Medical Supplies)</option>
+                            <option value="辦公用品">辦公用品 (Office Supplies)</option>
+                            <option value="其他">其他 (Others)</option>
+                          </select>
                         ) : (
-                          <div className="px-4 py-3 bg-gray-50 rounded-xl text-gray-900 font-medium">
+                          <div className="px-4 py-3 bg-gray-50 rounded-xl text-gray-900 font-medium text-sm sm:text-base min-h-[48px] flex items-center">
                             {user.industry || '未設置'}
                           </div>
                         )}
                       </div>
 
                       {/* Company Size */}
-                      <div>
+                      <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-6 shadow-sm">
                         <label className="block text-sm font-bold text-gray-900 mb-3 flex items-center">
-                          <Users className="h-4 w-4 mr-2 text-blue-600" />
+                          <Users className="h-4 w-4 mr-2 text-blue-600 flex-shrink-0" />
                           公司規模
                         </label>
                         {isEditing ? (
                           <select 
                             value={companyFormData.companySize}
                             onChange={(e) => setCompanyFormData(prev => ({ ...prev, companySize: e.target.value }))}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white transition-all duration-200"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white transition-all duration-200 text-sm sm:text-base"
                           >
                             <option value="">選擇公司規模</option>
                             <option value="1-10人">1-10人</option>
@@ -899,16 +902,16 @@ export default function CompanySettingsPage() {
                             <option value="500人以上">500人以上</option>
                           </select>
                         ) : (
-                          <div className="px-4 py-3 bg-gray-50 rounded-xl text-gray-900 font-medium">
+                          <div className="px-4 py-3 bg-gray-50 rounded-xl text-gray-900 font-medium text-sm sm:text-base min-h-[48px] flex items-center">
                             {user.companySize || '未設置'}
                           </div>
                         )}
                       </div>
 
-                      {/* Company Bio/Introduction */}
-                      <div className="col-span-2">
+                      {/* Company Bio/Introduction - Full Width */}
+                      <div className="lg:col-span-2 bg-white border border-gray-200 rounded-xl p-4 sm:p-6 shadow-sm">
                         <label className="block text-sm font-bold text-gray-900 mb-3 flex items-center">
-                          <FileText className="h-4 w-4 mr-2 text-blue-600" />
+                          <FileText className="h-4 w-4 mr-2 text-blue-600 flex-shrink-0" />
                           公司簡介
                         </label>
                         {isEditing ? (
@@ -917,10 +920,10 @@ export default function CompanySettingsPage() {
                             onChange={(e) => setCompanyFormData(prev => ({ ...prev, companyBio: e.target.value }))}
                             placeholder="請介紹您的公司，包括業務範圍、特色、優勢等..."
                             rows={4}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white transition-all duration-200 resize-none"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white transition-all duration-200 resize-none text-sm sm:text-base"
                           />
                         ) : (
-                          <div className="px-4 py-3 bg-gray-50 rounded-xl text-gray-900 font-medium min-h-[100px]">
+                          <div className="px-4 py-3 bg-gray-50 rounded-xl text-gray-900 font-medium min-h-[100px] text-sm sm:text-base">
                             {user.companyBio ? (
                               <div className="whitespace-pre-wrap">{user.companyBio}</div>
                             ) : (
@@ -931,9 +934,9 @@ export default function CompanySettingsPage() {
                       </div>
 
                       {/* Website */}
-                      <div>
+                      <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-6 shadow-sm">
                         <label className="block text-sm font-bold text-gray-900 mb-3 flex items-center">
-                          <Globe className="h-4 w-4 mr-2 text-blue-600" />
+                          <Globe className="h-4 w-4 mr-2 text-blue-600 flex-shrink-0" />
                           網站
                         </label>
                         {isEditing ? (
@@ -942,19 +945,19 @@ export default function CompanySettingsPage() {
                             value={companyFormData.website}
                             onChange={(e) => setCompanyFormData(prev => ({ ...prev, website: e.target.value }))}
                             placeholder="https://example.com"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white transition-all duration-200"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white transition-all duration-200 text-sm sm:text-base"
                           />
                         ) : (
-                          <div className="px-4 py-3 bg-gray-50 rounded-xl text-gray-900 font-medium">
+                          <div className="px-4 py-3 bg-gray-50 rounded-xl text-gray-900 font-medium text-sm sm:text-base min-h-[48px] flex items-center">
                             {user.website || '未設置'}
                           </div>
                         )}
                       </div>
 
                       {/* Address */}
-                      <div>
+                      <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-6 shadow-sm">
                         <label className="block text-sm font-bold text-gray-900 mb-3 flex items-center">
-                          <MapPin className="h-4 w-4 mr-2 text-blue-600" />
+                          <MapPin className="h-4 w-4 mr-2 text-blue-600 flex-shrink-0" />
                           地址
                         </label>
                         {isEditing ? (
@@ -963,19 +966,19 @@ export default function CompanySettingsPage() {
                             value={companyFormData.address}
                             onChange={(e) => setCompanyFormData(prev => ({ ...prev, address: e.target.value }))}
                             placeholder="公司地址"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white transition-all duration-200"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white transition-all duration-200 text-sm sm:text-base"
                           />
                         ) : (
-                          <div className="px-4 py-3 bg-gray-50 rounded-xl text-gray-900 font-medium">
+                          <div className="px-4 py-3 bg-gray-50 rounded-xl text-gray-900 font-medium text-sm sm:text-base min-h-[48px] flex items-center">
                             {user.address || '未設置'}
                           </div>
                         )}
                       </div>
 
                       {/* Phone */}
-                      <div>
+                      <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-6 shadow-sm">
                         <label className="block text-sm font-bold text-gray-900 mb-3 flex items-center">
-                          <Phone className="h-4 w-4 mr-2 text-blue-600" />
+                          <Phone className="h-4 w-4 mr-2 text-blue-600 flex-shrink-0" />
                           電話
                         </label>
                         {isEditing ? (
@@ -984,35 +987,35 @@ export default function CompanySettingsPage() {
                             value={companyFormData.phone}
                             onChange={(e) => setCompanyFormData(prev => ({ ...prev, phone: filterPhoneInput(e.target.value) }))}
                             placeholder="+852 98765432"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white transition-all duration-200"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white transition-all duration-200 text-sm sm:text-base"
                           />
                         ) : (
-                          <div className="px-4 py-3 bg-gray-50 rounded-xl text-gray-900 font-medium">
+                          <div className="px-4 py-3 bg-gray-50 rounded-xl text-gray-900 font-medium text-sm sm:text-base min-h-[48px] flex items-center">
                             {user.phone ? formatPhoneForDisplay(user.phone) : '未設置'}
                           </div>
                         )}
                       </div>
 
-                                             {/* BR Number */}
-                       <div>
-                         <label className="block text-sm font-bold text-gray-900 mb-3 flex items-center">
-                           <Hash className="h-4 w-4 mr-2 text-blue-600" />
-                           商業登記號
-                         </label>
-                         {isEditing ? (
-                           <input
-                             type="text"
-                             value={companyFormData.brNumber}
-                             onChange={(e) => setCompanyFormData(prev => ({ ...prev, brNumber: e.target.value }))}
-                             placeholder="BR號碼"
-                             className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white transition-all duration-200"
-                           />
-                         ) : (
-                           <div className="px-4 py-3 bg-gray-50 rounded-xl text-gray-900 font-medium">
-                             {user.brNumber || '未設置'}
-                           </div>
-                         )}
-                       </div>
+                      {/* BR Number */}
+                      <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-6 shadow-sm">
+                        <label className="block text-sm font-bold text-gray-900 mb-3 flex items-center">
+                          <Hash className="h-4 w-4 mr-2 text-blue-600 flex-shrink-0" />
+                          商業登記號
+                        </label>
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            value={companyFormData.brNumber}
+                            onChange={(e) => setCompanyFormData(prev => ({ ...prev, brNumber: e.target.value }))}
+                            placeholder="BR號碼"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white transition-all duration-200 text-sm sm:text-base"
+                          />
+                        ) : (
+                          <div className="px-4 py-3 bg-gray-50 rounded-xl text-gray-900 font-medium text-sm sm:text-base min-h-[48px] flex items-center">
+                            {user.brNumber || '未設置'}
+                          </div>
+                        )}
+                      </div>
 
                        {/* Social Media Links */}
                        <div className="md:col-span-2">
