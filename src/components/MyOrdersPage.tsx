@@ -1972,16 +1972,6 @@ export default function HistoryPage() {
                             <Eye className="h-4 w-4" />
                             <span className="text-sm">查看詳情</span>
                           </button>
-                          {activeTab === 'orders' && transaction.status === 'completed' && (
-                            <button 
-                              onClick={() => handleGenerateInvoice(transaction)}
-                              className="flex items-center space-x-1 text-green-600 hover:text-green-700 font-medium bg-green-50 hover:bg-green-100 px-3 py-2 rounded-lg transition-colors duration-200"
-                              title="生成發票 PDF"
-                            >
-                              <FileDown className="h-4 w-4" />
-                              <span className="text-sm">發票</span>
-                            </button>
-                          )}
                         </div>
                       </div>
                     </div>
@@ -2035,7 +2025,7 @@ export default function HistoryPage() {
                             <Eye className="h-4 w-4" />
                             <span>查看詳情</span>
                           </button>
-                          {activeTab === 'orders' && transaction.status === 'completed' && (
+                          {activeTab === 'sales' && transaction.status === 'completed' && (
                             <button 
                               onClick={() => handleGenerateInvoice(transaction)}
                               className="flex items-center space-x-1 text-green-600 hover:text-green-700 font-medium"
