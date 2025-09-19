@@ -5,6 +5,9 @@ export const FORM_STYLES = {
   inputError: "border-red-300",
   inputNormal: "border-gray-300",
   
+  // 選擇框基礎樣式（為圖示和下拉箭頭留出空間）
+  selectBase: "w-full pl-12 pr-10 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white transition-all duration-200 appearance-none cursor-pointer",
+  
   // 密碼輸入框樣式（包含右側按鈕）
   passwordInput: "w-full pl-12 pr-12 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white transition-all duration-200",
   
@@ -30,4 +33,10 @@ export const getInputClassName = (hasError: boolean, isPassword = false) => {
   const baseClass = isPassword ? FORM_STYLES.passwordInput : FORM_STYLES.inputBase;
   const errorClass = hasError ? FORM_STYLES.inputError : FORM_STYLES.inputNormal;
   return `${baseClass} ${errorClass}`;
+};
+
+// 動態選擇框樣式函數
+export const getSelectClassName = (hasError: boolean) => {
+  const errorClass = hasError ? FORM_STYLES.inputError : FORM_STYLES.inputNormal;
+  return `${FORM_STYLES.selectBase} ${errorClass}`;
 };

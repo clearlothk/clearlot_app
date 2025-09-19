@@ -92,7 +92,17 @@ export default function ShippingPhotoModal({ isOpen, onClose, purchaseId, onSucc
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files) {
-      Array.from(files).forEach(file => {
+      const fileArray = Array.from(files);
+      const remainingSlots = MAX_PHOTOS - selectedPhotos.length;
+      
+      if (fileArray.length > remainingSlots) {
+        setError(`最多只能上傳 ${MAX_PHOTOS} 張照片。您已選擇 ${selectedPhotos.length} 張，還可以再選擇 ${remainingSlots} 張。`);
+        // Reset input value to allow selecting the same file again
+        event.target.value = '';
+        return;
+      }
+      
+      fileArray.forEach(file => {
         addPhoto(file);
       });
     }
@@ -120,11 +130,19 @@ export default function ShippingPhotoModal({ isOpen, onClose, purchaseId, onSucc
     setDragActive(false);
 
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      Array.from(e.dataTransfer.files).forEach(file => {
+      const fileArray = Array.from(e.dataTransfer.files);
+      const remainingSlots = MAX_PHOTOS - selectedPhotos.length;
+      
+      if (fileArray.length > remainingSlots) {
+        setError(`最多只能上傳 ${MAX_PHOTOS} 張照片。您已選擇 ${selectedPhotos.length} 張，還可以再選擇 ${remainingSlots} 張。`);
+        return;
+      }
+      
+      fileArray.forEach(file => {
         addPhoto(file);
       });
     }
-  }, []);
+  }, [selectedPhotos.length]);
 
   const handleUpload = async () => {
     if (selectedPhotos.length === 0) {
@@ -227,6 +245,32 @@ export default function ShippingPhotoModal({ isOpen, onClose, purchaseId, onSucc
             </div>
           )}
 
+          {/* Delivery Notes Reminder */}
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+            <div className="flex items-start space-x-3">
+              <div className="flex-shrink-0">
+                <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
+                  <MessageSquare className="h-4 w-4 text-amber-600" />
+                </div>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-sm font-semibold text-amber-900 mb-2">
+                  📝 配送提醒
+                </h3>
+                <div className="text-sm text-amber-800 space-y-1">
+                  <p className="font-medium">請在配送時準備以下單據：</p>
+                  <ul className="list-disc list-inside space-y-1 ml-2">
+                    <li>發票或收據副本</li>
+                    <li>配送單據（包含買家簽收確認）</li>
+                  </ul>
+                  <p className="text-xs text-amber-700 mt-2">
+                    💡 建議：請買家在配送單據上簽名確認收貨，並拍照保存作為配送證明
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Photo Count Display */}
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-600">
@@ -248,7 +292,7 @@ export default function ShippingPhotoModal({ isOpen, onClose, purchaseId, onSucc
               dragActive 
                 ? 'border-blue-400 bg-blue-50' 
                 : selectedPhotos.length >= MAX_PHOTOS 
-                  ? 'border-gray-300 bg-gray-50' 
+                  ? 'border-red-300 bg-red-50' 
                   : 'border-gray-300 hover:border-blue-400 hover:bg-blue-50'
             }`}
             onDragEnter={handleDrag}
@@ -280,11 +324,19 @@ export default function ShippingPhotoModal({ isOpen, onClose, purchaseId, onSucc
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <div className="mx-auto w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                    <Plus className="h-6 w-6 text-green-600" />
+                  <div className={`mx-auto w-12 h-12 rounded-full flex items-center justify-center ${
+                    selectedPhotos.length >= MAX_PHOTOS 
+                      ? 'bg-red-100' 
+                      : 'bg-green-100'
+                  }`}>
+                    <Plus className={`h-6 w-6 ${
+                      selectedPhotos.length >= MAX_PHOTOS 
+                        ? 'text-red-600' 
+                        : 'text-green-600'
+                    }`} />
                   </div>
                   <p className="text-sm text-gray-600">
-                    {selectedPhotos.length >= MAX_PHOTOS ? '已達最大數量' : '點擊添加更多照片'}
+                    {selectedPhotos.length >= MAX_PHOTOS ? `已達最大數量 (${MAX_PHOTOS} 張)` : `點擊添加更多照片 (還可添加 ${MAX_PHOTOS - selectedPhotos.length} 張)`}
                   </p>
                 </div>
               )}
@@ -354,6 +406,9 @@ export default function ShippingPhotoModal({ isOpen, onClose, purchaseId, onSucc
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
             <p className="text-sm text-blue-800">
               <strong>提示：</strong>請上傳清晰的發貨證明照片，包含包裹、快遞單號(如果有)、配送地址等信息。建議上傳多角度照片以便審核。請確保照片中包含上述配送地址詳情。
+            </p>
+            <p className="text-sm text-blue-800 mt-2">
+              <strong>重要：</strong>請確保在配送時準備好配送單據，並讓買家簽名確認收貨。這些單據將作為配送完成的證明。
             </p>
           </div>
         </div>

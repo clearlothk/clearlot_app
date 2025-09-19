@@ -7,7 +7,7 @@ import { getPhoneErrorMessage, filterPhoneInput } from '../utils/phoneUtils';
 import { TrendingUp, Mail, Lock, Eye, EyeOff, AlertCircle, Loader, Building, Phone, MapPin, Check, ArrowLeft } from 'lucide-react';
 import TermsOfServiceModal from './TermsOfServiceModal';
 import PrivacyPolicyModal from './PrivacyPolicyModal';
-import { FORM_STYLES, getInputClassName } from '../utils/formStyles';
+import { FORM_STYLES, getInputClassName, getSelectClassName } from '../utils/formStyles';
 
 interface RegisterPageProps {
   onNavigateToLogin: () => void;
@@ -209,7 +209,7 @@ export default function RegisterPage({ onNavigateToLogin, onRegisterSuccess }: R
                 <select
                   value={formData.location}
                   onChange={(e) => handleInputChange('location', e.target.value)}
-                  className={getInputClassName(!!errors.location)}
+                  className={getSelectClassName(!!errors.location)}
                 >
                   <option value="">選擇您的地點</option>
                   {LOCATIONS.map((location, index) => (

@@ -18,7 +18,6 @@ import {
   LogOut,
   Menu,
   FileDown,
-  Upload,
   Shield
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -26,7 +25,6 @@ import {
   getAllPurchasesForAdmin,
   getOfferById,
   getUserById,
-  uploadLogoToStorage,
   saveInvoiceTemplate,
   getAllInvoiceTemplates
 } from '../services/firebaseService';
@@ -93,8 +91,6 @@ export default function AdminInvoicePage() {
   
   // Designer state
   const [currentTemplate, setCurrentTemplate] = useState<InvoiceTemplate | null>(null);
-  const [logoPreview, setLogoPreview] = useState<string>('');
-  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   
   // UI state
   const [searchQuery, setSearchQuery] = useState('');
@@ -290,7 +286,7 @@ export default function AdminInvoicePage() {
           header: {
             title: '發票 / INVOICE',
             subtitle: 'Clearlot Platform',
-            showLogo: true
+            showLogo: false
           },
           company: {
             name: 'Clearlot Platform',
@@ -337,12 +333,12 @@ export default function AdminInvoicePage() {
       isDefault: false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      settings: {
-        header: {
-          title: '發票 / INVOICE',
-          subtitle: 'Clearlot Platform',
-          showLogo: true
-        },
+        settings: {
+          header: {
+            title: '發票 / INVOICE',
+            subtitle: 'Clearlot Platform',
+            showLogo: false
+          },
         company: {
           name: 'Clearlot Platform',
           address: 'Hong Kong',
@@ -391,7 +387,10 @@ export default function AdminInvoicePage() {
         templateName: template?.name,
         isDefault: template?.isDefault,
         selectedTemplate: selectedTemplate?.id,
-        availableTemplates: templates.map(t => ({ id: t.id, name: t.name }))
+        availableTemplates: templates.map(t => ({ id: t.id, name: t.name })),
+        templateSettings: template?.settings,
+        showDeliveryInfo: template?.settings?.sections?.showDeliveryInfo,
+        showPaymentInfo: template?.settings?.sections?.showPaymentInfo
       });
       
       // Check if we have enhanced data, if not, load it on demand
@@ -470,6 +469,17 @@ export default function AdminInvoicePage() {
         setError('No template available. Please create a template first.');
         return;
       }
+      
+      // Debug: Log template information for PDF
+      console.log('Generating PDF with template:', {
+        templateId: template?.id,
+        templateName: template?.name,
+        isDefault: template?.isDefault,
+        selectedTemplate: selectedTemplate?.id,
+        templateSettings: template?.settings,
+        showDeliveryInfo: template?.settings?.sections?.showDeliveryInfo,
+        showPaymentInfo: template?.settings?.sections?.showPaymentInfo
+      });
       
       // Check if we have enhanced data, if not, load it on demand
       let enhancedPurchase = purchase;
@@ -563,31 +573,6 @@ export default function AdminInvoicePage() {
     }
   };
 
-  const handleLogoUpload = async (file: File) => {
-    try {
-      setIsUploadingLogo(true);
-      
-      // Create preview URL for immediate display
-      const previewUrl = URL.createObjectURL(file);
-      setLogoPreview(previewUrl);
-      
-      if (currentTemplate) {
-        // Upload to Firebase Storage and get permanent URL
-        const permanentUrl = await uploadLogoToStorage(file, currentTemplate.id);
-        
-        const updated = { ...currentTemplate };
-        updated.settings.header.logoUrl = permanentUrl;
-        setCurrentTemplate(updated);
-        
-        console.log('✅ Logo uploaded and saved:', permanentUrl);
-      }
-    } catch (error) {
-      console.error('Error uploading logo:', error);
-      setError('Failed to upload logo');
-    } finally {
-      setIsUploadingLogo(false);
-    }
-  };
 
   const handleSaveTemplate = async () => {
     try {
@@ -602,15 +587,16 @@ export default function AdminInvoicePage() {
       // Save to Firebase
       await saveInvoiceTemplate(updatedTemplate);
       
-      // Update templates array
-      setTemplates(prev => 
-        prev.map(t => t.id === updatedTemplate.id ? updatedTemplate : t)
-      );
+      // Reload templates from Firestore to ensure we have the latest data
+      await loadTemplatesFromFirestore();
       
       // Update selected template if it's the one being saved
       if (selectedTemplate && selectedTemplate.id === updatedTemplate.id) {
         setSelectedTemplate(updatedTemplate);
       }
+      
+      // Also update currentTemplate to ensure consistency
+      setCurrentTemplate(updatedTemplate);
       
       // Show success message
       setError(null);
@@ -759,16 +745,6 @@ export default function AdminInvoicePage() {
                 System
               </h3>
               <div className="space-y-1">
-                <button
-                  onClick={() => {
-                    navigate('/');
-                    setSidebarOpen(false);
-                  }}
-                  className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-medium text-gray-700 hover:text-green-700 hover:bg-green-50 rounded-lg transition-all duration-200 group"
-                >
-                  <Package className="h-5 w-5 group-hover:text-green-600" />
-                  <span>访问网站</span>
-                </button>
                 <button
                   disabled
                   className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-medium text-gray-400 cursor-not-allowed rounded-lg opacity-50"
@@ -1201,39 +1177,6 @@ export default function AdminInvoicePage() {
                             placeholder="Clearlot Platform"
                           />
                         </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700">Company Logo</label>
-                          <div className="mt-1 flex items-center space-x-4">
-                            {logoPreview && (
-                              <img
-                                src={logoPreview}
-                                alt="Logo preview"
-                                className="h-16 w-16 object-contain border border-gray-200 rounded"
-                              />
-                            )}
-                            <div>
-                              <input
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => {
-                                  const file = e.target.files?.[0];
-                                  if (file) {
-                                    handleLogoUpload(file);
-                                  }
-                                }}
-                                className="hidden"
-                                id="logo-upload"
-                              />
-                              <label
-                                htmlFor="logo-upload"
-                                className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 cursor-pointer"
-                              >
-                                <Upload className="h-4 w-4 mr-2" />
-                                {isUploadingLogo ? 'Uploading...' : 'Upload Logo'}
-                              </label>
-                            </div>
-                          </div>
-                        </div>
                       </div>
                     </div>
 
@@ -1427,15 +1370,6 @@ export default function AdminInvoicePage() {
                     <div className="bg-white p-4 rounded shadow-sm" style={{ fontFamily: currentTemplate.settings.styling.fontFamily }}>
                       {/* Header Section */}
                       <div className="text-center mb-6">
-                        {currentTemplate.settings.header.logoUrl && (
-                          <div className="mb-3">
-                            <img 
-                              src={currentTemplate.settings.header.logoUrl} 
-                              alt="Company Logo" 
-                              className="h-16 w-auto mx-auto object-contain"
-                            />
-                          </div>
-                        )}
                         <h1 
                           className="text-xl font-bold mb-2" 
                           style={{ 

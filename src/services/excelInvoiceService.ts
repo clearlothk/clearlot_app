@@ -170,35 +170,7 @@ export class ExcelInvoiceService {
 
     let currentRow = 1;
 
-    // Header with Logo
-    if (settings.header.logoUrl && settings.header.showLogo) {
-      try {
-        // Add logo row with height
-        const logoRow = worksheet.getRow(currentRow);
-        logoRow.height = 60;
-        
-        // Try to add actual logo if possible, otherwise use placeholder
-        try {
-          // Note: ExcelJS image handling is complex and requires base64 or buffer
-          // For now, we'll add a placeholder text that indicates logo should be here
-          logoRow.getCell(1).value = `[LOGO: ${settings.header.logoUrl.split('/').pop()}]`;
-          logoRow.getCell(1).font = {
-            name: settings.styling.fontFamily,
-            size: settings.styling.fontSize - 2,
-            italic: true,
-            color: { argb: 'FF888888' }
-          };
-          logoRow.getCell(1).alignment = { horizontal: 'center' };
-          console.log('✅ Excel logo placeholder added');
-        } catch (logoError) {
-          console.warn('⚠️ Could not add logo placeholder:', logoError);
-          logoRow.getCell(1).value = '[LOGO PLACEHOLDER]';
-        }
-        currentRow++;
-      } catch (error) {
-        console.warn('❌ Could not add logo row:', error);
-      }
-    }
+    // Logo functionality removed - no logo will be displayed
 
     // Title
     const titleRow = worksheet.getRow(currentRow);
@@ -624,19 +596,9 @@ export class ExcelInvoiceService {
   static async convertExcelToPDF(invoiceData: InvoiceData, filename?: string): Promise<void> {
     try {
       // Pre-process logo to avoid CORS issues
-      let processedHtmlContent = this.generateHTMLFromExcel(null, invoiceData);
+      let processedHtmlContent = this.generateHTMLFromExcel(invoiceData);
       
-      // Skip logo processing in development due to CORS issues
-      // In production, Firebase Storage should have proper CORS settings
-      if (invoiceData.template?.settings.header.logoUrl && invoiceData.template.settings.header.showLogo) {
-        console.log('⚠️ Logo processing skipped due to CORS restrictions in development');
-        console.log('📝 Logo URL:', invoiceData.template.settings.header.logoUrl);
-        // Remove logo from HTML to avoid CORS errors
-        processedHtmlContent = processedHtmlContent.replace(
-          /<img[^>]*src="[^"]*"[^>]*>/g,
-          '<div style="height: 80px; display: flex; align-items: center; justify-content: center; background-color: #f0f0f0; border: 2px dashed #ccc; color: #666; font-size: 12px;">[LOGO PLACEHOLDER]</div>'
-        );
-      }
+      // Logo functionality removed - no logo processing needed
       
       // Create a temporary container
       const tempContainer = document.createElement('div');
@@ -698,93 +660,8 @@ export class ExcelInvoiceService {
     }
   }
 
-  // Helper function to convert image URL to base64
-  private static async convertImageToBase64(imageUrl: string): Promise<string | null> {
-    try {
-      // Try different approaches to handle CORS
-      console.log('🔄 Attempting to convert image to base64:', imageUrl);
-      
-      // Method 1: Try with no-cors mode first
-      try {
-        const response = await fetch(imageUrl, {
-          mode: 'no-cors',
-          credentials: 'omit'
-        });
-        
-        if (response.type === 'opaque') {
-          console.log('⚠️ No-cors response is opaque, trying alternative method');
-          return await this.convertImageToBase64Alternative(imageUrl);
-        }
-        
-        const blob = await response.blob();
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(blob);
-        });
-      } catch (noCorsError) {
-        console.log('⚠️ No-cors method failed, trying alternative method');
-        return await this.convertImageToBase64Alternative(imageUrl);
-      }
-    } catch (error) {
-      console.error('❌ Error converting image to base64:', error);
-      return null;
-    }
-  }
 
-  // Alternative method using proxy or direct approach
-  private static async convertImageToBase64Alternative(imageUrl: string): Promise<string | null> {
-    try {
-      // Create a temporary image element to load the image
-      return new Promise((resolve) => {
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        
-        img.onload = () => {
-          try {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            
-            if (!ctx) {
-              console.error('❌ Could not get canvas context');
-              resolve(null);
-              return;
-            }
-            
-            canvas.width = img.width;
-            canvas.height = img.height;
-            ctx.drawImage(img, 0, 0);
-            
-            const dataURL = canvas.toDataURL('image/png');
-            console.log('✅ Image converted to base64 using canvas method');
-            resolve(dataURL);
-          } catch (canvasError) {
-            console.error('❌ Canvas conversion failed:', canvasError);
-            resolve(null);
-          }
-        };
-        
-        img.onerror = (error) => {
-          console.error('❌ Image load failed:', error);
-          resolve(null);
-        };
-        
-        // Set a timeout
-        setTimeout(() => {
-          console.error('❌ Image load timeout');
-          resolve(null);
-        }, 10000);
-        
-        img.src = imageUrl;
-      });
-    } catch (error) {
-      console.error('❌ Alternative method failed:', error);
-      return null;
-    }
-  }
-
-  private static generateHTMLFromExcel(workbook: ExcelJS.Workbook | null, invoiceData: InvoiceData): string {
+  private static generateHTMLFromExcel(invoiceData: InvoiceData): string {
     const settings = invoiceData.template?.settings || {
       header: {
         title: '發票 / INVOICE',
@@ -923,8 +800,6 @@ export class ExcelInvoiceService {
     // Add content based on template settings
     html += `
         <div class="header">
-          ${settings.header.showLogo && settings.header.logoUrl ? 
-            `<img src="${settings.header.logoUrl}" alt="Company Logo" style="max-height: 80px; margin-bottom: 10px;" crossorigin="anonymous" onerror="this.style.display='none'; console.log('Logo failed to load:', this.src);" onload="console.log('Logo loaded successfully:', this.src);">` : ''}
           <div class="title">${settings.header.title}</div>
           <div class="subtitle">${settings.header.subtitle}</div>
         </div>
@@ -995,18 +870,20 @@ export class ExcelInvoiceService {
     `;
 
     // Add payment info
-    html += `
-      <div class="section-title">付款資訊 / Payment Information</div>
-      <div class="info-item">付款方式 / Payment Method: 銀行轉帳 / Bank Transfer</div>
-      <div class="info-item">付款狀態 / Payment Status: ${invoiceData.purchase.paymentDetails?.status || 'N/A'}</div>
-      ${invoiceData.purchase.paymentDetails?.timestamp ? 
-        `<div class="info-item">付款時間 / Payment Time: ${this.formatDate(invoiceData.purchase.paymentDetails.timestamp)}</div>` : 
-        ''
-      }
-    `;
+    if (settings.sections.showPaymentInfo) {
+      html += `
+        <div class="section-title">付款資訊 / Payment Information</div>
+        <div class="info-item">付款方式 / Payment Method: 銀行轉帳 / Bank Transfer</div>
+        <div class="info-item">付款狀態 / Payment Status: ${invoiceData.purchase.paymentDetails?.status || 'N/A'}</div>
+        ${invoiceData.purchase.paymentDetails?.timestamp ? 
+          `<div class="info-item">付款時間 / Payment Time: ${this.formatDate(invoiceData.purchase.paymentDetails.timestamp)}</div>` : 
+          ''
+        }
+      `;
+    }
 
     // Add delivery info
-    if (invoiceData.purchase.deliveryDetails) {
+    if (settings.sections.showDeliveryInfo && invoiceData.purchase.deliveryDetails) {
       html += `
         <div class="section-title">送貨地址 / Delivery Address</div>
         <div class="info-item">地區 / District: ${invoiceData.purchase.deliveryDetails.district}</div>

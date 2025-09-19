@@ -123,39 +123,12 @@ export class PDFService {
 
     let currentY = 20;
 
-    // Header with Logo
-    if (settings.header.logoUrl && settings.header.showLogo) {
-      try {
-        // Add logo placeholder text (jsPDF image handling requires base64 or canvas)
-        doc.setFontSize(settings.styling.fontSize - 2);
-        doc.setFont(settings.styling.fontFamily, 'italic');
-        doc.setTextColor(128, 128, 128); // Gray color
-        doc.text('[LOGO PLACEHOLDER]', 20, currentY);
-        currentY += 10;
-        
-        // Add title
-        doc.setFontSize(settings.styling.fontSize + 4);
-        doc.setFont(settings.styling.fontFamily, 'bold');
-        doc.setTextColor(primaryColor.r, primaryColor.g, primaryColor.b);
-        doc.text(settings.header.title, 20, currentY);
-        currentY += 15;
-      } catch (error) {
-        console.warn('Could not load logo:', error);
-        // Fallback to text-only header
-        doc.setFontSize(settings.styling.fontSize + 4);
-        doc.setFont(settings.styling.fontFamily, 'bold');
-        doc.setTextColor(primaryColor.r, primaryColor.g, primaryColor.b);
-        doc.text(settings.header.title, 20, currentY);
-        currentY += 15;
-      }
-    } else {
-      // Text-only header
-      doc.setFontSize(settings.styling.fontSize + 4);
-      doc.setFont(settings.styling.fontFamily, 'bold');
-      doc.setTextColor(primaryColor.r, primaryColor.g, primaryColor.b);
-      doc.text(settings.header.title, 20, currentY);
-      currentY += 15;
-    }
+    // Header (no logo)
+    doc.setFontSize(settings.styling.fontSize + 4);
+    doc.setFont(settings.styling.fontFamily, 'bold');
+    doc.setTextColor(primaryColor.r, primaryColor.g, primaryColor.b);
+    doc.text(settings.header.title, 20, currentY);
+    currentY += 15;
 
     // Company info
     if (settings.company.showCompanyInfo) {

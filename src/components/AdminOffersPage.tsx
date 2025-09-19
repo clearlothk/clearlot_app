@@ -832,16 +832,6 @@ export default function AdminOffersPage() {
               </h3>
               <div className="space-y-1">
                 <button
-                  onClick={() => {
-                    navigate('/');
-                    setSidebarOpen(false);
-                  }}
-                  className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-medium text-gray-700 hover:text-green-700 hover:bg-green-50 rounded-lg transition-all duration-200 group"
-                >
-                  <Package className="h-5 w-5 group-hover:text-green-600" />
-                  <span>访问网站</span>
-                </button>
-                <button
                   disabled
                   className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-medium text-gray-400 cursor-not-allowed rounded-lg opacity-50"
                 >

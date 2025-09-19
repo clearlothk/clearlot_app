@@ -3052,30 +3052,6 @@ export const sendSellerPaymentApprovalNotification = async (purchaseId: string):
   }
 };
 
-// Upload logo to Firebase Storage
-export const uploadLogoToStorage = async (file: File, templateId: string): Promise<string> => {
-  try {
-    // Create a unique filename
-    const timestamp = Date.now();
-    const fileExtension = file.name.split('.').pop();
-    const fileName = `invoice-templates/${templateId}/logo_${timestamp}.${fileExtension}`;
-    
-    // Create storage reference
-    const storageRef = ref(storage, fileName);
-    
-    // Upload file
-    const snapshot = await uploadBytes(storageRef, file);
-    
-    // Get download URL
-    const downloadURL = await getDownloadURL(snapshot.ref);
-    
-    console.log('✅ Logo uploaded successfully:', downloadURL);
-    return downloadURL;
-  } catch (error: any) {
-    console.error('❌ Error uploading logo:', error);
-    throw new Error('Logo上傳失敗。請重試。');
-  }
-};
 
 // Save invoice template to Firestore
 export const saveInvoiceTemplate = async (template: InvoiceTemplate): Promise<void> => {

@@ -301,11 +301,50 @@ export default function AdminTransactionsPage() {
     approvalStatus?: 'pending' | 'approved' | 'rejected';
   }) => {
     try {
+      // Use default template for consistency
+      const defaultTemplate = {
+        id: 'default-fallback',
+        name: 'Default Template',
+        isDefault: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        settings: {
+          header: {
+            title: '發票 / INVOICE',
+            subtitle: 'Clearlot Platform',
+            showLogo: false
+          },
+          company: {
+            name: 'Clearlot Platform',
+            address: 'Hong Kong',
+            phone: '+852-XXXX-XXXX',
+            email: 'info@clearlot.com',
+            showCompanyInfo: true
+          },
+          styling: {
+            primaryColor: '#2563eb',
+            secondaryColor: '#64748b',
+            fontFamily: 'helvetica',
+            fontSize: 12
+          },
+          sections: {
+            showBuyerInfo: true,
+            showSellerInfo: true,
+            showProductTable: true,
+            showPaymentInfo: true,
+            showDeliveryInfo: true,
+            showFooter: true,
+            footerText: ''
+          }
+        }
+      };
+
       const invoiceData = {
         purchase: transaction,
         offer: transaction.offer,
         buyer: transaction.buyer,
-        seller: transaction.seller
+        seller: transaction.seller,
+        template: defaultTemplate
       };
       
       // Use Excel service for better formatting and Chinese character support
@@ -654,16 +693,6 @@ export default function AdminTransactionsPage() {
               </h3>
               <div className="space-y-1">
                 <button
-                  onClick={() => {
-                    navigate('/');
-                    setSidebarOpen(false);
-                  }}
-                  className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-medium text-gray-700 hover:text-green-700 hover:bg-green-50 rounded-lg transition-all duration-200 group"
-                >
-                  <Package className="h-5 w-5 group-hover:text-green-600" />
-                  <span>访问网站</span>
-                </button>
-                <button
                   disabled
                   className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-medium text-gray-400 cursor-not-allowed rounded-lg opacity-50"
                 >
@@ -1003,12 +1032,49 @@ export default function AdminTransactionsPage() {
                                 await ExcelInvoiceService.convertExcelToPDF(invoiceData);
                               } catch (error) {
                                 console.error('Error generating PDF:', error);
-                                // Fallback without template
+                                // Fallback with default template
+                                const defaultTemplate = {
+                                  id: 'default-fallback',
+                                  name: 'Default Template',
+                                  isDefault: true,
+                                  createdAt: new Date().toISOString(),
+                                  updatedAt: new Date().toISOString(),
+                                  settings: {
+                                    header: {
+                                      title: '發票 / INVOICE',
+                                      subtitle: 'Clearlot Platform',
+                                      showLogo: false
+                                    },
+                                    company: {
+                                      name: 'Clearlot Platform',
+                                      address: 'Hong Kong',
+                                      phone: '+852-XXXX-XXXX',
+                                      email: 'info@clearlot.com',
+                                      showCompanyInfo: true
+                                    },
+                                    styling: {
+                                      primaryColor: '#2563eb',
+                                      secondaryColor: '#64748b',
+                                      fontFamily: 'helvetica',
+                                      fontSize: 12
+                                    },
+                                    sections: {
+                                      showBuyerInfo: true,
+                                      showSellerInfo: true,
+                                      showProductTable: true,
+                                      showPaymentInfo: true,
+                                      showDeliveryInfo: true,
+                                      showFooter: true,
+                                      footerText: ''
+                                    }
+                                  }
+                                };
                                 const invoiceData = {
                                   purchase: transaction,
                                   offer: transaction.offer,
                                   buyer: transaction.buyer,
-                                  seller: transaction.seller
+                                  seller: transaction.seller,
+                                  template: defaultTemplate
                                 };
                                 await ExcelInvoiceService.convertExcelToPDF(invoiceData);
                               }

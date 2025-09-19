@@ -232,19 +232,8 @@ export default function ShippingStatusModal({
           <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
             <h3 className="font-semibold text-yellow-900 mb-2">下一步操作</h3>
             <div className="text-sm text-yellow-800 space-y-2">
-              <p>• <strong>追蹤發貨</strong>: 使用追蹤編號監控包裹狀態</p>
               <p>• <strong>等待送達</strong>: 買家確認收到貨物後，訂單將更新為"已送達"</p>
               <p>• <strong>完成訂單</strong>: 買家確認收貨後，訂單將標記為"已完成"</p>
-            </div>
-          </div>
-
-          {/* Status Information */}
-          <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
-            <h3 className="font-semibold text-gray-900 mb-2">狀態說明</h3>
-            <div className="text-sm text-gray-700 space-y-1">
-              <p>• <strong>已發貨</strong>: 賣家已發貨，包裹正在運輸中</p>
-              <p>• <strong>已送達</strong>: 包裹已送達，等待買家確認</p>
-              <p>• <strong>已完成</strong>: 買家確認收貨，訂單完成</p>
             </div>
           </div>
         </div>
