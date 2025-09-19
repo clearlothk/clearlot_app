@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
-import { X, Package, MapPin, Calendar, DollarSign, User, Truck, CheckCircle, Clock, AlertCircle, Edit3, MessageCircle } from 'lucide-react';
+import { X, Package, MapPin, Calendar, DollarSign, User, Truck, CheckCircle, Clock, AlertCircle, Edit3, MessageCircle, FileText } from 'lucide-react';
 import EditDeliveryDetailsModal from './EditDeliveryDetailsModal';
 import { useAuth } from '../contexts/AuthContext';
 import SellerRatingDisplay from './SellerRatingDisplay';
 import { useNavigate } from 'react-router-dom';
 import { getClearLotAdminId } from '../services/adminService';
+import { ExcelInvoiceService } from '../services/excelInvoiceService';
+import { getOfferById, getUserById, getAllInvoiceTemplates } from '../services/firebaseService';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../config/firebase';
 
 interface OrderDetailsModalProps {
   isOpen: boolean;
@@ -87,6 +91,162 @@ export default function OrderDetailsModal({ isOpen, onClose, transaction, type }
       month: 'long',
       day: 'numeric'
     });
+  };
+
+  const handleGeneratePDF = async () => {
+    try {
+      // Load invoice templates from Firestore
+      const templates = await getAllInvoiceTemplates();
+      
+      // Use the same logic as AdminInvoicePage to get the template
+      const template = templates.find(t => t.isDefault) || templates[0];
+      
+      if (!template) {
+        alert('沒有可用的發票模板，請聯繫管理員');
+        return;
+      }
+      
+      console.log('Using template for user PDF:', {
+        templateId: template.id,
+        templateName: template.name,
+        isDefault: template.isDefault,
+        showPaymentInfo: template.settings.sections.showPaymentInfo,
+        showDeliveryInfo: template.settings.sections.showDeliveryInfo
+      });
+
+      // Get the complete Purchase data from Firestore to ensure all fields are present
+      let completePurchaseData = null;
+      try {
+        const purchaseRef = doc(db, 'purchases', transaction.id);
+        const purchaseDoc = await getDoc(purchaseRef);
+        if (purchaseDoc.exists()) {
+          completePurchaseData = purchaseDoc.data();
+          console.log('Complete purchase data from Firestore:', completePurchaseData);
+        }
+      } catch (error) {
+        console.warn('Failed to load complete purchase data:', error);
+      }
+
+      // Load missing data if needed
+      let enhancedTransaction = transaction;
+      
+      // Check if we need to load buyer data (even if transaction.buyer exists, it might be a string)
+      const needsBuyerData = !transaction.buyer || typeof transaction.buyer === 'string' || !transaction.buyer.company;
+      const needsOfferData = !transaction.offer;
+      const needsSellerData = !transaction.seller || typeof transaction.seller === 'string' || !transaction.seller.company;
+      
+      if (needsOfferData || needsBuyerData || needsSellerData) {
+        try {
+          console.log('Loading missing data for PDF generation:', {
+            hasOffer: !!transaction.offer,
+            hasBuyer: !!transaction.buyer,
+            hasSeller: !!transaction.seller,
+            buyerType: typeof transaction.buyer,
+            sellerType: typeof transaction.seller,
+            buyerId: transaction.buyerId,
+            sellerId: transaction.sellerId,
+            offerId: transaction.offerId,
+            needsBuyerData,
+            needsOfferData,
+            needsSellerData
+          });
+
+          const [offer, buyer, seller] = await Promise.all([
+            needsOfferData ? getOfferById(transaction.offerId).catch((error) => {
+              console.warn('Failed to load offer:', error);
+              return null;
+            }) : transaction.offer,
+            needsBuyerData ? getUserById(transaction.buyerId).catch((error) => {
+              console.warn('Failed to load buyer:', error);
+              return null;
+            }) : transaction.buyer,
+            needsSellerData ? getUserById(transaction.sellerId).catch((error) => {
+              console.warn('Failed to load seller:', error);
+              return null;
+            }) : transaction.seller
+          ]);
+          
+          console.log('Loaded data for PDF:', {
+            hasOffer: !!offer,
+            hasBuyer: !!buyer,
+            hasSeller: !!seller,
+            buyerData: buyer ? {
+              id: buyer.id,
+              name: buyer.name,
+              company: buyer.company,
+              email: buyer.email,
+              type: typeof buyer
+            } : null,
+            sellerData: seller ? {
+              id: seller.id,
+              name: seller.name,
+              company: seller.company,
+              email: seller.email,
+              type: typeof seller
+            } : null
+          });
+          
+          enhancedTransaction = {
+            ...transaction,
+            offer,
+            buyer,
+            seller
+          };
+        } catch (error) {
+          console.warn('Failed to load enhanced data for PDF:', error);
+        }
+      }
+
+      // Use complete Purchase data if available, otherwise fall back to transaction data
+      const purchaseData = completePurchaseData || {
+        ...enhancedTransaction,
+        // Ensure date field is properly mapped
+        purchaseDate: enhancedTransaction.purchaseDate || enhancedTransaction.date,
+        // Map the correct financial fields
+        totalAmount: enhancedTransaction.totalAmount,
+        unitPrice: enhancedTransaction.unitPrice || 0,
+        platformFee: enhancedTransaction.platformFee || 0,
+        finalAmount: enhancedTransaction.finalAmount || enhancedTransaction.totalAmount || 0,
+        paymentMethod: enhancedTransaction.paymentMethod || 'bank-transfer'
+      };
+
+      // Ensure we have the correct buyer object
+      const buyerData = enhancedTransaction.buyer;
+      console.log('Final buyer data check:', {
+        buyerData,
+        isObject: typeof buyerData === 'object',
+        hasCompany: buyerData && typeof buyerData === 'object' && 'company' in buyerData,
+        company: buyerData && typeof buyerData === 'object' ? buyerData.company : 'N/A'
+      });
+
+      const invoiceData = {
+        purchase: purchaseData,
+        offer: enhancedTransaction.offer,
+        buyer: buyerData, // Use the buyer object directly
+        seller: enhancedTransaction.seller,
+        template: template
+      };
+      
+      console.log('PDF generation data:', {
+        purchase: invoiceData.purchase,
+        offer: invoiceData.offer,
+        buyer: invoiceData.buyer,
+        seller: invoiceData.seller,
+        template: invoiceData.template,
+        buyerDetails: invoiceData.buyer ? {
+          id: invoiceData.buyer.id,
+          name: invoiceData.buyer.name,
+          company: invoiceData.buyer.company,
+          email: invoiceData.buyer.email
+        } : null
+      });
+      
+      // Generate PDF using Excel service
+      await ExcelInvoiceService.convertExcelToPDF(invoiceData);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('生成PDF失敗，請稍後再試');
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -381,7 +541,14 @@ export default function OrderDetailsModal({ isOpen, onClose, transaction, type }
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end p-6 border-t border-gray-200">
+        <div className="flex justify-between items-center p-6 border-t border-gray-200">
+          <button
+            onClick={handleGeneratePDF}
+            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+          >
+            <FileText className="h-4 w-4" />
+            <span>生成PDF發票</span>
+          </button>
           <button
             onClick={onClose}
             className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200"

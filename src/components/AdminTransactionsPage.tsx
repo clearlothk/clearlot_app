@@ -44,7 +44,8 @@ import {
   updateTransactionPaymentStatus,
   updateTransactionWithAdminNotes,
   markLogisticsArranged,
-  markPurchaseCompleted
+  markPurchaseCompleted,
+  getAllInvoiceTemplates
 } from '../services/firebaseService';
 import { Purchase, Offer, AuthUser } from '../types';
 import OrderProgressTracker from './OrderProgressTracker';
@@ -301,50 +302,31 @@ export default function AdminTransactionsPage() {
     approvalStatus?: 'pending' | 'approved' | 'rejected';
   }) => {
     try {
-      // Use default template for consistency
-      const defaultTemplate = {
-        id: 'default-fallback',
-        name: 'Default Template',
-        isDefault: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        settings: {
-          header: {
-            title: '發票 / INVOICE',
-            subtitle: 'Clearlot Platform',
-            showLogo: false
-          },
-          company: {
-            name: 'Clearlot Platform',
-            address: 'Hong Kong',
-            phone: '+852-XXXX-XXXX',
-            email: 'info@clearlot.com',
-            showCompanyInfo: true
-          },
-          styling: {
-            primaryColor: '#2563eb',
-            secondaryColor: '#64748b',
-            fontFamily: 'helvetica',
-            fontSize: 12
-          },
-          sections: {
-            showBuyerInfo: true,
-            showSellerInfo: true,
-            showProductTable: true,
-            showPaymentInfo: true,
-            showDeliveryInfo: true,
-            showFooter: true,
-            footerText: ''
-          }
-        }
-      };
+      // Load invoice templates from Firestore
+      const templates = await getAllInvoiceTemplates();
+      
+      // Use the same logic as AdminInvoicePage to get the template
+      const template = templates.find(t => t.isDefault) || templates[0];
+      
+      if (!template) {
+        setError('沒有可用的發票模板，請先在發票管理頁面創建模板');
+        return;
+      }
+      
+      console.log('Using template for admin transaction PDF:', {
+        templateId: template.id,
+        templateName: template.name,
+        isDefault: template.isDefault,
+        showPaymentInfo: template.settings.sections.showPaymentInfo,
+        showDeliveryInfo: template.settings.sections.showDeliveryInfo
+      });
 
       const invoiceData = {
         purchase: transaction,
         offer: transaction.offer,
         buyer: transaction.buyer,
         seller: transaction.seller,
-        template: defaultTemplate
+        template: template
       };
       
       // Use Excel service for better formatting and Chinese character support

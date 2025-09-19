@@ -48,7 +48,10 @@ export interface InvoiceData {
 }
 
 export class ExcelInvoiceService {
-  private static formatCurrency(amount: number): string {
+  private static formatCurrency(amount: number | undefined | null): string {
+    if (amount === undefined || amount === null || isNaN(amount)) {
+      return 'HK$ 0.00';
+    }
     return `HK$ ${amount.toFixed(2)}`;
   }
 
@@ -821,11 +824,32 @@ export class ExcelInvoiceService {
     `;
 
     // Add buyer info
+    console.log('ExcelInvoiceService - Buyer data:', {
+      hasBuyer: !!invoiceData.buyer,
+      buyer: invoiceData.buyer,
+      buyerCompany: invoiceData.buyer?.company
+    });
+    
     if (invoiceData.buyer) {
+      const buyerCompany = invoiceData.buyer.company || 'N/A';
+      console.log('HTML generation - Buyer company value:', {
+        buyer: invoiceData.buyer,
+        company: invoiceData.buyer.company,
+        finalValue: buyerCompany
+      });
+      
       html += `
         <div class="info-section">
           <div class="section-title">買方資料 / Buyer Information</div>
-          <div class="info-item">公司名稱 / Company: ${invoiceData.buyer.company || 'N/A'}</div>
+          <div class="info-item">公司名稱 / Company: ${buyerCompany}</div>
+        </div>
+      `;
+    } else {
+      console.log('HTML generation - No buyer data available');
+      html += `
+        <div class="info-section">
+          <div class="section-title">買方資料 / Buyer Information</div>
+          <div class="info-item">公司名稱 / Company: N/A (No buyer data)</div>
         </div>
       `;
     }

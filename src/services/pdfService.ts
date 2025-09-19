@@ -169,7 +169,7 @@ export class PDFService {
       doc.setFont(settings.styling.fontFamily, 'normal');
       doc.setTextColor(0, 0, 0); // Black text
       if (buyer) {
-        doc.text(`公司名稱 / Company: ${buyer.companyName || 'N/A'}`, 20, currentY);
+        doc.text(`公司名稱 / Company: ${buyer.company || 'N/A'}`, 20, currentY);
         currentY += 15;
       } else {
         doc.text('買方資料不詳 / Buyer information not available', 20, currentY);
