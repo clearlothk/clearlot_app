@@ -1513,6 +1513,54 @@ export default function AdminTransactionsPage() {
                         </div>
                       </div>
                     </div>
+
+                    {/* Seller Bank Details */}
+                    {selectedTransaction.seller?.bankDetails && (
+                      <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                        <h4 className="font-medium text-orange-900 mb-3 flex items-center">
+                          <CreditCard className="h-4 w-4 mr-2" />
+                          Seller Bank Details
+                        </h4>
+                        <div className="space-y-2 text-sm">
+                          {selectedTransaction.seller.bankDetails.bankName && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Bank Name:</span>
+                              <span className="font-medium text-orange-800">{selectedTransaction.seller.bankDetails.bankName}</span>
+                            </div>
+                          )}
+                          {selectedTransaction.seller.bankDetails.accountNumber && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Account Number:</span>
+                              <span className="font-medium text-orange-800 font-mono">{selectedTransaction.seller.bankDetails.accountNumber}</span>
+                            </div>
+                          )}
+                          {selectedTransaction.seller.bankDetails.branchCode && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Branch Code:</span>
+                              <span className="font-medium text-orange-800 font-mono">{selectedTransaction.seller.bankDetails.branchCode}</span>
+                            </div>
+                          )}
+                          {selectedTransaction.seller.bankDetails.accountHolderName && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Account Holder:</span>
+                              <span className="font-medium text-orange-800">{selectedTransaction.seller.bankDetails.accountHolderName}</span>
+                            </div>
+                          )}
+                          {selectedTransaction.seller.bankDetails.swiftCode && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">SWIFT Code:</span>
+                              <span className="font-medium text-orange-800 font-mono">{selectedTransaction.seller.bankDetails.swiftCode}</span>
+                            </div>
+                          )}
+                          {selectedTransaction.seller.bankDetails.bankAddress && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Bank Address:</span>
+                              <span className="font-medium text-orange-800 text-right max-w-xs">{selectedTransaction.seller.bankDetails.bankAddress}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Payment Receipt Section */}
