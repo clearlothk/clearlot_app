@@ -451,14 +451,14 @@ const EditOfferPage: React.FC = () => {
               </div>
 
               {/* Category */}
-              <div>
+              <div className="category-dropdown-container">
                 <label className="block text-sm font-bold text-gray-900 mb-3">
                   類別 *
                 </label>
                 <select
                   value={formData.category}
                   onChange={(e) => handleInputChange('category', e.target.value)}
-                  className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white transition-all duration-200 border-gray-300"
+                  className="category-dropdown w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white transition-all duration-200 border-gray-300"
                 >
                   <option value="">選擇類別</option>
                   {CATEGORIES.map(category => (

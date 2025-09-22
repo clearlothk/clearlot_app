@@ -145,3 +145,62 @@
   transform: translateY(-2px) scale(1.05);
   filter: brightness(1.1);
 }
+
+/* Custom dropdown styling for better UX */
+.category-dropdown {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
+  position: relative;
+  z-index: 10;
+}
+
+/* Force dropdown to always open downward */
+.category-dropdown:focus {
+  outline: none;
+  position: relative;
+}
+
+/* Ensure dropdown opens downward and shows options in correct order */
+.category-dropdown option {
+  direction: ltr;
+  text-align: left;
+  position: relative;
+}
+
+/* Custom styling for better dropdown appearance */
+.category-dropdown option:first-child {
+  font-weight: 500;
+  color: #6b7280;
+}
+
+/* Force the select dropdown to open downward by ensuring proper positioning */
+.category-dropdown {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
+/* Additional styling to prevent upward opening */
+.category-dropdown:active,
+.category-dropdown:focus {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
+/* Ensure the dropdown container has enough space below */
+.category-dropdown-container {
+  position: relative;
+  z-index: 1;
+}
+
+/* Force dropdown to open below the field */
+@media (min-width: 768px) {
+  .category-dropdown {
+    position: relative;
+  }
+}

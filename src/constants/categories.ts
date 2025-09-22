@@ -1,17 +1,89 @@
 // Shared categories for consistency across the application
 export const CATEGORIES = [
+  // Electronics & Technology
   '電子產品',
-  '紡織品', 
-  '餐廳設備',
-  '傢俱',
-  '汽車',
-  '工業',
+  '電腦及配件',
+  '手機及配件',
+  '家電',
+  '音響設備',
+  '攝影器材',
+  
+  // Textiles & Fashion
+  '紡織品',
   '時尚',
+  '服裝',
+  '鞋類',
+  '手袋及配飾',
+  '珠寶首飾',
+  
+  // Food & Beverage
   '食品飲料',
-  '醫療設備',
+  '餐廳設備',
+  '廚房設備',
+  '烘焙用品',
+  '咖啡茶具',
+  
+  // Furniture & Home
+  '傢俱',
+  '家居裝飾',
+  '燈具照明',
+  '床上用品',
+  '浴室用品',
+  '清潔用品',
+  
+  // Automotive & Transportation
+  '汽車',
+  '汽車配件',
+  '摩托車',
+  '自行車',
+  '船舶用品',
+  
+  // Industrial & Construction
+  '工業',
+  '機械',
   '建築材料',
+  '工具設備',
+  '安全防護',
+  '包裝材料',
+  
+  // Office & Business
   '辦公用品',
-  '機械'
+  '文具用品',
+  '印刷設備',
+  '商業設備',
+  
+  // Health & Medical
+  '醫療設備',
+  '健康用品',
+  '美容護理',
+  '運動健身',
+  
+  // Pets & Animals
+  '寵物用品',
+  '寵物食品',
+  '寵物玩具',
+  '寵物護理',
+  '水族用品',
+  '鳥類用品',
+  
+  // Alcohol & Beverages
+  '酒精飲品',
+  '葡萄酒',
+  '烈酒',
+  '啤酒',
+  '清酒',
+  '調酒用品',
+  
+  // Entertainment & Hobbies
+  '玩具遊戲',
+  '書籍雜誌',
+  '音樂樂器',
+  '收藏品',
+  '戶外用品',
+  
+  // Services & Others
+  '服務',
+  '其他'
 ] as const;
 
 export type Category = typeof CATEGORIES[number];

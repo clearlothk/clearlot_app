@@ -28,6 +28,7 @@ import {
   deleteCompanyLogo
 } from '../services/firebaseService';
 import { Offer, AuthUser } from '../types';
+import { CATEGORIES } from '../constants/categories';
 
 export default function AdminEditOfferPage() {
   const { offerId } = useParams<{ offerId: string }>();
@@ -497,20 +498,9 @@ export default function AdminEditOfferPage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="">Select category</option>
-                    <option value="Electronics">Electronics</option>
-                    <option value="Furniture">Furniture</option>
-                    <option value="Clothing">Clothing</option>
-                    <option value="Food">Food</option>
-                    <option value="Automotive">Automotive</option>
-                    <option value="Books">Books</option>
-                    <option value="Sports">Sports</option>
-                    <option value="Toys">Toys</option>
-                    <option value="Health">Health</option>
-                    <option value="Beauty">Beauty</option>
-                    <option value="Home">Home</option>
-                    <option value="Garden">Garden</option>
-                    <option value="Tools">Tools</option>
-                    <option value="Other">Other</option>
+                    {CATEGORIES.map(category => (
+                      <option key={category} value={category}>{category}</option>
+                    ))}
                   </select>
                 </div>
 
