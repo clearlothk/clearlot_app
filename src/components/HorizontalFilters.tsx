@@ -22,6 +22,7 @@ export default function HorizontalFilters({
 }: HorizontalFiltersProps) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [popularTags, setPopularTags] = useState<string[]>([]);
+  const [showAllTags, setShowAllTags] = useState(false);
 
   // Extract popular tags from offers data
   useEffect(() => {
@@ -32,10 +33,9 @@ export default function HorizontalFilters({
         return acc;
       }, {});
       
-      // Get top 6 most popular tags
+      // Get all tags for display
       const sortedTags = Object.entries(tagCounts)
         .sort(([,a], [,b]) => (b as number) - (a as number))
-        .slice(0, 6)
         .map(([tag]) => tag);
       
       setPopularTags(sortedTags);
@@ -73,16 +73,10 @@ export default function HorizontalFilters({
       {/* Main Filter Bar */}
       <div className="p-6">
         <div className="flex flex-wrap items-center gap-4">
-          {/* Results Count */}
-          <div className="flex items-center">
-            <span className="text-lg font-bold text-gray-900 mr-2">{resultCount}</span>
-            <span className="text-gray-600">個優惠</span>
-          </div>
-
           {/* Popular Tags */}
           {popularTags.length > 0 && (
             <div className="flex flex-wrap gap-2">
-              {popularTags.map((tag) => (
+              {(showAllTags ? popularTags : popularTags.slice(0, 6)).map((tag) => (
                 <button
                   key={tag}
                   onClick={() => {
@@ -102,6 +96,14 @@ export default function HorizontalFilters({
                   {tag}
                 </button>
               ))}
+              {popularTags.length > 6 && (
+                <button
+                  onClick={() => setShowAllTags(!showAllTags)}
+                  className="px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 bg-blue-100 text-blue-700 hover:bg-blue-200 border border-blue-300"
+                >
+                  {showAllTags ? '顯示較少' : `更多 (${popularTags.length - 6})`}
+                </button>
+              )}
             </div>
           )}
 

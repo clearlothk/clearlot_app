@@ -136,13 +136,8 @@ export default function OfferCard({ offer, onClick, onLocationFilter }: OfferCar
 
       {/* Content Section - Flexible Height */}
       <div className="p-6 flex flex-col flex-1">
-        {/* Offer ID and Title - Fixed Height */}
+        {/* Title - Fixed Height */}
         <div className="h-16 mb-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-mono text-gray-500 bg-gray-100 px-2 py-1 rounded">
-              {offer.offerId}
-            </span>
-          </div>
           <h3 className="font-bold text-gray-900 text-lg leading-tight line-clamp-2">
             {offer.title}
           </h3>

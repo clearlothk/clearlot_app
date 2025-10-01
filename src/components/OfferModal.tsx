@@ -264,11 +264,8 @@ export default function OfferModal({ offer, isOpen, onClose, onBuyNow }: OfferMo
 
               {/* Right Column - Details */}
               <div>
-                {/* Offer ID and Message Button */}
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm font-mono text-gray-500 bg-gray-100 px-3 py-1 rounded">
-                    LOT編號: {offer.offerId}
-                  </span>
+                {/* Message Button */}
+                <div className="flex items-center justify-end mb-4">
                   <button
                     onClick={handleMessageSeller}
                     disabled={isContactingSeller}
@@ -399,9 +396,6 @@ export default function OfferModal({ offer, isOpen, onClose, onBuyNow }: OfferMo
                     <AlertCircle className="h-5 w-5 text-yellow-600 mr-3 mt-0.5 flex-shrink-0" />
                     <div className="text-sm">
                       <p className="font-medium text-yellow-800 mb-1">重要詳情</p>
-                      <p className="text-yellow-700 font-mono">
-                        LOT編號: {offer.offerId}
-                      </p>
                       <p className="text-yellow-700">
                         最小訂購數量: {offer.minOrderQuantity.toLocaleString()} {offer.unit}
                       </p>
