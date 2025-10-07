@@ -25,7 +25,7 @@ export default function BrowseOffersPage() {
           <h1 className="text-5xl font-bold mb-6">瀏覽獨家B2B優惠</h1>
           <p className="text-xl mb-8 max-w-3xl mx-auto">
             搜尋來自所有行業認證供應商的令人難以置信的優惠。
-            在我們精心策劃的市場中，批發價格節省高達80%。
+            在我們精心策劃的市場中，批發價格節省高達90%。
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button 
@@ -149,7 +149,7 @@ export default function BrowseOffersPage() {
                 <TrendingUp className="h-8 w-8 text-green-600" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">最佳價格</h3>
-              <p className="text-gray-600">通過獨家清倉優惠，批發價格節省高達80%。</p>
+              <p className="text-gray-600">通過獨家清倉優惠，批發價格節省高達90%。</p>
             </div>
             
             <div className="text-center">

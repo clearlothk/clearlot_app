@@ -250,7 +250,7 @@ function Marketplace({ defaultTab = 'all' }: { defaultTab?: string }) {
             </span>
           )}
           <span className="text-green-600 font-semibold flex items-center">
-            💰 批發價格節省高達80%
+            💰 批發價格節省高達90%
           </span>
         </p>
       </div>
