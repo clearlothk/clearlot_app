@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SearchFilters } from '../types';
-import { Filter, ChevronDown, X, MapPin, CheckCircle } from 'lucide-react';
+import { X, MapPin, CheckCircle } from 'lucide-react';
 import { CATEGORIES, LOCATIONS } from '../constants/categories';
 
 interface HorizontalFiltersProps {
@@ -20,7 +20,6 @@ export default function HorizontalFilters({
   onDisplayModeChange,
   offers = []
 }: HorizontalFiltersProps) {
-  const [showAdvanced, setShowAdvanced] = useState(false);
   const [popularTags, setPopularTags] = useState<string[]>([]);
   const [showAllTags, setShowAllTags] = useState(false);
 
@@ -153,15 +152,6 @@ export default function HorizontalFilters({
             </div>
           )}
 
-          {/* More Filters Toggle */}
-          <button
-            onClick={() => setShowAdvanced(!showAdvanced)}
-            className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200 text-gray-700 font-medium"
-          >
-            <Filter className="h-4 w-4" />
-            <span>更多篩選</span>
-            <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${showAdvanced ? 'rotate-180' : ''}`} />
-          </button>
 
           {/* Clear Filters */}
           {hasActiveFilters && (
@@ -190,10 +180,9 @@ export default function HorizontalFilters({
         )}
       </div>
 
-      {/* Advanced Filters (Collapsible) */}
-      {showAdvanced && (
-        <div className="px-6 pb-6 border-t border-gray-100">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4">
+      {/* Advanced Filters */}
+      <div className="px-6 pb-6 border-t border-gray-100">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4">
             {/* Category Dropdown */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">類別</label>
@@ -261,7 +250,6 @@ export default function HorizontalFilters({
             </div>
           </div>
         </div>
-      )}
     </div>
   );
 }

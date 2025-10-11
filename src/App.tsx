@@ -42,6 +42,7 @@ import AdminEditOfferPage from './components/AdminEditOfferPage';
 import AdminTransactionsPage from './components/AdminTransactionsPage';
 import AdminMessagesPage from './components/AdminMessagesPage';
 import AdminInvoicePage from './components/AdminInvoicePage';
+import AdminMarketingPage from './components/AdminMarketingPage';
 import LandingPage from './components/LandingPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import UserProfilePage from './components/UserProfilePage';
@@ -770,6 +771,7 @@ function AppContent() {
         <Route path="/hk/admin/transactions" element={<AdminTransactionsPage />} />
         <Route path="/hk/admin/messages" element={<AdminMessagesPage />} />
         <Route path="/hk/admin/invoices" element={<AdminInvoicePage />} />
+        <Route path="/hk/admin/marketing" element={<AdminMarketingPage />} />
         
 
         
